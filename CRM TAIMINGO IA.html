@@ -1,0 +1,556 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TAIMINGO IA - CRM</title>
+    <style>
+        /* Paleta de Colores TAIMINGO IA */
+        :root {
+            --primary: #0F172A; /* Azul corporativo oscuro */
+            --secondary: #3B82F6; /* Azul brillante tecnológico */
+            --background: #F8FAFC;
+            --text: #1E293B;
+            --card-bg: #FFFFFF;
+            
+            /* Colores para Resalte de Presentación */
+            --highlight-border: #F59E0B; /* Naranja/Dorado */
+            --highlight-bg: #FFFBEB;
+            --highlight-text: #B45309;
+        }
+
+        body { 
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif; 
+            background: var(--background); 
+            margin: 0; 
+            padding: 20px; 
+            color: var(--text); 
+        }
+
+        h1 { 
+            color: var(--primary); 
+            text-align: center; 
+            font-size: 2.8rem; 
+            margin-bottom: 5px; 
+            text-transform: uppercase; 
+            letter-spacing: 3px;
+        }
+
+        .subtitle { 
+            text-align: center; 
+            color: var(--secondary); 
+            margin-bottom: 30px; 
+            font-weight: 600; 
+            letter-spacing: 1px;
+        }
+
+        .container { 
+            max-width: 1300px; 
+            margin: auto; 
+            display: grid; 
+            grid-template-columns: 320px 1fr; 
+            gap: 25px; 
+        }
+
+        /* Paneles y Formularios */
+        .panel { 
+            background: var(--card-bg); 
+            padding: 25px; 
+            border-radius: 12px; 
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); 
+            height: fit-content;
+        }
+
+        .panel h2 {
+            margin-top: 0;
+            color: var(--primary);
+            font-size: 1.3rem;
+            border-bottom: 2px solid var(--background);
+            padding-bottom: 10px;
+        }
+
+        label { 
+            display: block; 
+            margin-top: 15px; 
+            font-weight: 600; 
+            font-size: 0.9rem;
+            color: #475569;
+        }
+
+        input, select, textarea { 
+            width: 100%; 
+            padding: 10px; 
+            margin-top: 5px; 
+            border: 1px solid #CBD5E1; 
+            border-radius: 6px; 
+            box-sizing: border-box; 
+            font-family: inherit;
+        }
+        
+        input:focus, select:focus, textarea:focus {
+            outline: none;
+            border-color: var(--secondary);
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
+        }
+
+        button { 
+            background: var(--secondary); 
+            color: white; 
+            border: none; 
+            padding: 12px 15px; 
+            margin-top: 20px; 
+            border-radius: 6px; 
+            cursor: pointer; 
+            font-weight: bold; 
+            width: 100%; 
+            transition: all 0.2s;
+        }
+
+        button:hover { background: #2563EB; }
+        
+        .btn-outline {
+            background: transparent;
+            color: var(--primary);
+            border: 1px solid #CBD5E1;
+            margin-top: 10px;
+        }
+        .btn-outline:hover { background: var(--background); }
+
+        /* Abecedario (Pestañas) */
+        .alphabet-container { 
+            display: flex; 
+            flex-wrap: wrap; 
+            gap: 6px; 
+            margin-bottom: 25px; 
+            justify-content: center; 
+            max-width: 1300px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .letter-tab { 
+            padding: 8px 14px; 
+            background: var(--card-bg); 
+            border: 1px solid #CBD5E1; 
+            border-radius: 6px; 
+            cursor: pointer; 
+            font-weight: 600; 
+            color: var(--primary);
+            transition: all 0.2s;
+        }
+
+        .letter-tab:hover, .letter-tab.active { 
+            background: var(--secondary); 
+            color: white; 
+            border-color: var(--secondary); 
+        }
+
+        /* Grid de Empresas */
+        .companies-grid { 
+            display: grid; 
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); 
+            gap: 20px; 
+        }
+
+        .card { 
+            background: var(--card-bg); 
+            padding: 20px; 
+            border-radius: 10px; 
+            border-left: 5px solid var(--secondary); 
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05); 
+            display: flex;
+            flex-direction: column;
+            transition: transform 0.2s;
+        }
+        
+        .card:hover { transform: translateY(-2px); }
+
+        .card h3 { margin: 0 0 15px 0; color: var(--primary); font-size: 1.2rem;}
+        .card p { margin: 6px 0; font-size: 0.95rem; }
+
+        /* Estilos de Resalte para Presentación */
+        .card.presentation-highlight {
+            border-left: 6px solid var(--highlight-border);
+            background-color: var(--highlight-bg);
+            box-shadow: 0 4px 15px rgba(245, 158, 11, 0.2);
+        }
+        .badge-presentacion { 
+            background: var(--highlight-border); 
+            color: #fff; 
+            padding: 4px 10px; 
+            border-radius: 20px; 
+            font-size: 0.75rem; 
+            font-weight: bold; 
+            display: inline-block; 
+            margin-bottom: 12px;
+            align-self: flex-start;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        /* Historial de Comentarios */
+        .latest-comment {
+            margin-top: 15px; 
+            font-size: 0.85rem; 
+            background: var(--background); 
+            padding: 10px; 
+            border-radius: 6px;
+            color: #475569;
+            flex-grow: 1;
+        }
+
+        .comments-list { 
+            max-height: 200px; 
+            overflow-y: auto; 
+            background: var(--background); 
+            padding: 15px; 
+            border-radius: 8px; 
+            border: 1px solid #E2E8F0; 
+            margin-top: 15px; 
+            font-size: 0.9rem;
+        }
+        .comment-item { 
+            border-bottom: 1px solid #CBD5E1; 
+            padding-bottom: 10px; 
+            margin-bottom: 10px; 
+        }
+        .comment-item:last-child { border-bottom: none; margin-bottom: 0; padding-bottom: 0;}
+        .comment-date { 
+            font-weight: 700; 
+            color: var(--secondary); 
+            font-size: 0.8rem; 
+            display: block;
+            margin-bottom: 3px;
+        }
+
+        /* Modal para Editar / Ver Detalles */
+        .modal { 
+            display: none; 
+            position: fixed; 
+            top: 0; left: 0; 
+            width: 100%; height: 100%; 
+            background: rgba(15, 23, 42, 0.7); 
+            justify-content: center; 
+            align-items: center; 
+            z-index: 1000; 
+            backdrop-filter: blur(4px);
+        }
+        .modal-content { 
+            background: var(--card-bg); 
+            padding: 30px; 
+            border-radius: 12px; 
+            width: 90%; 
+            max-width: 550px; 
+            max-height: 90vh; 
+            overflow-y: auto; 
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+        }
+        .close-modal { 
+            float: right; 
+            cursor: pointer; 
+            font-size: 1.8rem; 
+            font-weight: bold; 
+            color: #94A3B8;
+            line-height: 1;
+        }
+        .close-modal:hover { color: var(--primary); }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .container { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+
+    <h1>TAIMINGO IA</h1>
+    <div class="subtitle">SISTEMA INTELIGENTE DE GESTIÓN COMERCIAL</div>
+
+    <!-- Pestañas del abecedario generadas dinámicamente -->
+    <div class="alphabet-container" id="alphabet-tabs"></div>
+
+    <div class="container">
+        
+        <!-- Panel de Registro Nuevo -->
+        <div class="panel">
+            <h2>Registrar Nueva Empresa</h2>
+            <form id="crm-form">
+                <label>Nombre de la Empresa</label>
+                <input type="text" id="company-name" required placeholder="Ej. Corporativo XYZ">
+
+                <label>Contacto Principal</label>
+                <input type="text" id="contact-name" placeholder="Nombre del prospecto">
+
+                <label>Teléfono / Correo</label>
+                <input type="text" id="contact-info" placeholder="Datos para contactar">
+
+                <label>Estatus Comercial</label>
+                <select id="status">
+                    <option value="Prospección">Prospección</option>
+                    <option value="Contacto Inicial">Contacto Inicial</option>
+                    <option value="Presentación Agendada">Presentación Agendada</option>
+                    <option value="Negociación">Negociación</option>
+                    <option value="Cerrado">Cerrado / Cliente</option>
+                </select>
+
+                <label>Comentarios / Bitácora Inicial</label>
+                <textarea id="initial-comment" rows="3" placeholder="Anota aquí los primeros detalles..."></textarea>
+
+                <button type="submit">Guardar Empresa</button>
+            </form>
+        </div>
+
+        <!-- Panel del Directorio -->
+        <div class="panel" style="background: transparent; box-shadow: none; padding: 0;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                <h2 style="margin: 0; border: none; padding: 0;">Directorio: <span id="current-letter" style="color: var(--secondary);">Todos</span></h2>
+            </div>
+            
+            <div class="companies-grid" id="companies-list">
+                <!-- Las tarjetas se inyectan aquí con JavaScript -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal para Modificar TODOS los apartados y ver bitácora -->
+    <div id="edit-modal" class="modal">
+        <div class="modal-content">
+            <span class="close-modal" onclick="closeModal()">&times;</span>
+            <h2 style="color: var(--primary); margin-top: 0;">Detalle y Modificación</h2>
+            
+            <form id="edit-form">
+                <input type="hidden" id="edit-id">
+                
+                <label>Nombre de la Empresa</label>
+                <input type="text" id="edit-name" required>
+
+                <label>Contacto Principal</label>
+                <input type="text" id="edit-contact">
+
+                <label>Teléfono / Correo</label>
+                <input type="text" id="edit-info">
+
+                <label>Estatus Comercial</label>
+                <select id="edit-status">
+                    <option value="Prospección">Prospección</option>
+                    <option value="Contacto Inicial">Contacto Inicial</option>
+                    <option value="Presentación Agendada">Presentación Agendada</option>
+                    <option value="Negociación">Negociación</option>
+                    <option value="Cerrado">Cerrado / Cliente</option>
+                </select>
+
+                <div style="margin-top: 25px; border-top: 2px dashed #CBD5E1; padding-top: 15px;">
+                    <label style="color: var(--secondary);">+ Agregar Nueva Actualización</label>
+                    <textarea id="new-update" rows="3" placeholder="Escribe un nuevo comentario o avance para agregarlo al historial..."></textarea>
+                </div>
+
+                <button type="button" onclick="saveEdits()">Guardar Cambios</button>
+            </form>
+
+            <h3 style="margin-top: 30px; font-size: 1.1rem; color: var(--primary);">Historial de Actualizaciones</h3>
+            <div id="modal-comments-list" class="comments-list">
+                <!-- Se llena mediante JS -->
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Cargar datos guardados en el navegador o iniciar vacío
+        let companies = JSON.parse(localStorage.getItem('taimingo_crm_db')) || [];
+        let currentFilter = 'Todos';
+
+        document.addEventListener("DOMContentLoaded", () => {
+            buildAlphabet();
+            renderCompanies();
+        });
+
+        // Guarda permanentemente en el navegador
+        function syncData() {
+            localStorage.setItem('taimingo_crm_db', JSON.stringify(companies));
+        }
+
+        // 1. Construir botones del abecedario
+        function buildAlphabet() {
+            const container = document.getElementById('alphabet-tabs');
+            container.innerHTML = `<div class="letter-tab active" onclick="filterData('Todos', this)">Todos</div>`;
+            const letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("");
+            
+            letters.forEach(letter => {
+                container.innerHTML += `<div class="letter-tab" onclick="filterData('${letter}', this)">${letter}</div>`;
+            });
+        }
+
+        // Filtrado por letra
+        function filterData(letter, btnElement) {
+            currentFilter = letter;
+            document.querySelectorAll('.letter-tab').forEach(btn => btn.classList.remove('active'));
+            btnElement.classList.add('active');
+            document.getElementById('current-letter').textContent = letter;
+            renderCompanies();
+        }
+
+        // 2. Renderizar y acomodar alfabéticamente
+        function renderCompanies() {
+            const list = document.getElementById('companies-list');
+            list.innerHTML = '';
+
+            // Filtrar según pestaña activa
+            let filtered = companies;
+            if (currentFilter !== 'Todos') {
+                filtered = companies.filter(c => c.name.toUpperCase().startsWith(currentFilter));
+            }
+
+            // Ordenamiento alfabético estricto A-Z
+            filtered.sort((a, b) => a.name.localeCompare(b.name, 'es', { sensitivity: 'base' }));
+
+            if (filtered.length === 0) {
+                list.innerHTML = '<p style="color:#94A3B8; font-style:italic;">No se encontraron empresas registradas.</p>';
+                return;
+            }
+
+            filtered.forEach(company => {
+                // Detectar si requiere resalte por presentación
+                const needsHighlight = company.status === 'Presentación Agendada';
+                const highlightClass = needsHighlight ? 'presentation-highlight' : '';
+                const badgeHTML = needsHighlight ? '<div class="badge-presentacion">¡Presentación Próxima!</div>' : '';
+
+                // Extraer el comentario más reciente para la vista rápida
+                let latestCommentHTML = '';
+                if (company.comments && company.comments.length > 0) {
+                    const last = company.comments[company.comments.length - 1];
+                    latestCommentHTML = `
+                        <div class="latest-comment">
+                            <strong>Última act. (${last.date}):</strong><br>
+                            ${last.text.substring(0, 80)}${last.text.length > 80 ? '...' : ''}
+                        </div>
+                    `;
+                } else {
+                    latestCommentHTML = `<div class="latest-comment" style="color:#CBD5E1; font-style:italic;">Sin comentarios.</div>`;
+                }
+
+                // Armar tarjeta HTML
+                const card = `
+                    <div class="card ${highlightClass}">
+                        ${badgeHTML}
+                        <h3>${company.name}</h3>
+                        <p><strong>Contacto:</strong> ${company.contact || 'N/A'}</p>
+                        <p><strong>Datos:</strong> ${company.info || 'N/A'}</p>
+                        <p><strong>Estatus:</strong> ${company.status}</p>
+                        ${latestCommentHTML}
+                        <button class="btn-outline" onclick="openModal(${company.id})">Modificar / Historial</button>
+                    </div>
+                `;
+                list.innerHTML += card;
+            });
+        }
+
+        // 3. Registrar nueva empresa
+        document.getElementById('crm-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const commentText = document.getElementById('initial-comment').value.trim();
+            const initialCommentsArray = [];
+            
+            if (commentText !== '') {
+                initialCommentsArray.push({
+                    date: getFormattedDate(),
+                    text: commentText
+                });
+            }
+
+            const newCompany = {
+                id: Date.now(),
+                name: document.getElementById('company-name').value.trim(),
+                contact: document.getElementById('contact-name').value.trim(),
+                info: document.getElementById('contact-info').value.trim(),
+                status: document.getElementById('status').value,
+                comments: initialCommentsArray
+            };
+
+            companies.push(newCompany);
+            syncData();
+            this.reset(); // Limpiar formulario
+            
+            // Volver a la pestaña "Todos" para ver el registro nuevo fácilmente
+            document.querySelector('.letter-tab').click(); 
+        });
+
+        // 4. Modal para Modificar todos los apartados
+        function openModal(id) {
+            const company = companies.find(c => c.id === id);
+            if (!company) return;
+
+            document.getElementById('edit-id').value = company.id;
+            document.getElementById('edit-name').value = company.name;
+            document.getElementById('edit-contact').value = company.contact;
+            document.getElementById('edit-info').value = company.info;
+            document.getElementById('edit-status').value = company.status;
+            document.getElementById('new-update').value = ''; // Limpiar campo de nueva actualización
+
+            // Llenar el historial (Mostrando del más reciente al más antiguo)
+            const historyContainer = document.getElementById('modal-comments-list');
+            historyContainer.innerHTML = '';
+            
+            if (company.comments && company.comments.length > 0) {
+                const reversedComments = [...company.comments].reverse();
+                reversedComments.forEach(c => {
+                    historyContainer.innerHTML += `
+                        <div class="comment-item">
+                            <span class="comment-date">${c.date}</span>
+                            ${c.text}
+                        </div>
+                    `;
+                });
+            } else {
+                historyContainer.innerHTML = '<p style="color:#94A3B8; font-style:italic;">No hay historial registrado.</p>';
+            }
+
+            document.getElementById('edit-modal').style.display = 'flex';
+        }
+
+        function closeModal() {
+            document.getElementById('edit-modal').style.display = 'none';
+        }
+
+        // 5. Guardar las modificaciones hechas en el modal
+        function saveEdits() {
+            const id = parseInt(document.getElementById('edit-id').value);
+            const index = companies.findIndex(c => c.id === id);
+            if (index === -1) return;
+
+            // Actualizar datos generales
+            companies[index].name = document.getElementById('edit-name').value.trim();
+            companies[index].contact = document.getElementById('edit-contact').value.trim();
+            companies[index].info = document.getElementById('edit-info').value.trim();
+            companies[index].status = document.getElementById('edit-status').value;
+
+            // Si hay un nuevo comentario, agregarlo a la bitácora
+            const newUpdateText = document.getElementById('new-update').value.trim();
+            if (newUpdateText !== '') {
+                companies[index].comments.push({
+                    date: getFormattedDate(),
+                    text: newUpdateText
+                });
+            }
+
+            syncData();
+            closeModal();
+            renderCompanies(); // Refrescar vista
+        }
+
+        // Utilidad: Obtener fecha formateada
+        function getFormattedDate() {
+            const d = new Date();
+            return d.toLocaleDateString('es-MX') + ' ' + d.toLocaleTimeString('es-MX', {hour: '2-digit', minute:'2-digit'});
+        }
+
+        // Cerrar modal al hacer clic afuera
+        window.onclick = function(event) {
+            const modal = document.getElementById('edit-modal');
+            if (event.target == modal) {
+                closeModal();
+            }
+        }
+    </script>
+</body>
+</html>
