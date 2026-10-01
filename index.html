@@ -7,16 +7,20 @@
     <style>
         /* Paleta de Colores TAIMINGO IA */
         :root {
-            --primary: #0F172A; /* Azul corporativo oscuro */
-            --secondary: #3B82F6; /* Azul brillante tecnológico */
+            --primary: #0F172A;
+            --secondary: #3B82F6;
             --background: #F8FAFC;
             --text: #1E293B;
             --card-bg: #FFFFFF;
             
-            /* Colores para Resalte de Presentación */
-            --highlight-border: #F59E0B; /* Naranja/Dorado */
+            /* Resalte de Presentación */
+            --highlight-border: #F59E0B;
             --highlight-bg: #FFFBEB;
             --highlight-text: #B45309;
+
+            /* Cierre */
+            --success-border: #10B981;
+            --success-bg: #ECFDF5;
         }
 
         body { 
@@ -39,20 +43,48 @@
         .subtitle { 
             text-align: center; 
             color: var(--secondary); 
-            margin-bottom: 30px; 
+            margin-bottom: 20px; 
             font-weight: 600; 
             letter-spacing: 1px;
         }
 
+        /* Pestañas Principales (Navegación) */
+        .main-tabs {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+
+        .main-tab-btn {
+            padding: 12px 25px;
+            font-size: 1.1rem;
+            font-weight: bold;
+            border: 2px solid var(--secondary);
+            background: transparent;
+            color: var(--secondary);
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .main-tab-btn.active, .main-tab-btn:hover {
+            background: var(--secondary);
+            color: white;
+        }
+
+        .view-section { display: none; }
+        .view-section.active { display: block; }
+
         .container { 
-            max-width: 1300px; 
+            max-width: 1400px; 
             margin: auto; 
             display: grid; 
-            grid-template-columns: 320px 1fr; 
+            grid-template-columns: 350px 1fr; 
             gap: 25px; 
         }
 
-        /* Paneles y Formularios */
+        /* Paneles */
         .panel { 
             background: var(--card-bg); 
             padding: 25px; 
@@ -69,18 +101,28 @@
             padding-bottom: 10px;
         }
 
+        .form-section-title {
+            margin-top: 20px;
+            padding-top: 10px;
+            border-top: 1px dashed #CBD5E1;
+            color: var(--secondary);
+            font-size: 0.95rem;
+            font-weight: bold;
+            text-transform: uppercase;
+        }
+
         label { 
             display: block; 
-            margin-top: 15px; 
+            margin-top: 10px; 
             font-weight: 600; 
-            font-size: 0.9rem;
+            font-size: 0.85rem;
             color: #475569;
         }
 
         input, select, textarea { 
             width: 100%; 
-            padding: 10px; 
-            margin-top: 5px; 
+            padding: 8px; 
+            margin-top: 4px; 
             border: 1px solid #CBD5E1; 
             border-radius: 6px; 
             box-sizing: border-box; 
@@ -116,14 +158,14 @@
         }
         .btn-outline:hover { background: var(--background); }
 
-        /* Abecedario (Pestañas) */
+        /* Abecedario */
         .alphabet-container { 
             display: flex; 
             flex-wrap: wrap; 
             gap: 6px; 
             margin-bottom: 25px; 
             justify-content: center; 
-            max-width: 1300px;
+            max-width: 1400px;
             margin-left: auto;
             margin-right: auto;
         }
@@ -148,7 +190,7 @@
         /* Grid de Empresas */
         .companies-grid { 
             display: grid; 
-            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); 
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); 
             gap: 20px; 
         }
 
@@ -156,26 +198,31 @@
             background: var(--card-bg); 
             padding: 20px; 
             border-radius: 10px; 
-            border-left: 5px solid var(--secondary); 
+            border-left: 5px solid #94A3B8; /* Default */
             box-shadow: 0 2px 4px rgba(0,0,0,0.05); 
             display: flex;
             flex-direction: column;
             transition: transform 0.2s;
+            position: relative;
         }
         
         .card:hover { transform: translateY(-2px); }
+        .card h3 { margin: 0 0 10px 0; color: var(--primary); font-size: 1.2rem;}
+        .card p { margin: 4px 0; font-size: 0.9rem; }
 
-        .card h3 { margin: 0 0 15px 0; color: var(--primary); font-size: 1.2rem;}
-        .card p { margin: 6px 0; font-size: 0.95rem; }
-
-        /* Estilos de Resalte para Presentación */
-        .card.presentation-highlight {
+        /* Estilos Condicionales */
+        .card.status-prospecto { border-left-color: #94A3B8; }
+        .card.status-presentacion {
             border-left: 6px solid var(--highlight-border);
             background-color: var(--highlight-bg);
             box-shadow: 0 4px 15px rgba(245, 158, 11, 0.2);
         }
-        .badge-presentacion { 
-            background: var(--highlight-border); 
+        .card.status-cierre {
+            border-left: 6px solid var(--success-border);
+            background-color: var(--success-bg);
+        }
+
+        .badge { 
             color: #fff; 
             padding: 4px 10px; 
             border-radius: 20px; 
@@ -187,43 +234,23 @@
             text-transform: uppercase;
             letter-spacing: 0.5px;
         }
+        .badge-presentacion { background: var(--highlight-border); }
+        .badge-cierre { background: var(--success-border); color: #064E3B;}
+        .badge-prospecto { background: #64748B; }
 
-        /* Historial de Comentarios */
+        /* Historial y Calendario */
         .latest-comment {
             margin-top: 15px; 
             font-size: 0.85rem; 
-            background: var(--background); 
+            background: rgba(255,255,255,0.6); 
             padding: 10px; 
             border-radius: 6px;
             color: #475569;
             flex-grow: 1;
+            border: 1px solid #E2E8F0;
         }
 
-        .comments-list { 
-            max-height: 200px; 
-            overflow-y: auto; 
-            background: var(--background); 
-            padding: 15px; 
-            border-radius: 8px; 
-            border: 1px solid #E2E8F0; 
-            margin-top: 15px; 
-            font-size: 0.9rem;
-        }
-        .comment-item { 
-            border-bottom: 1px solid #CBD5E1; 
-            padding-bottom: 10px; 
-            margin-bottom: 10px; 
-        }
-        .comment-item:last-child { border-bottom: none; margin-bottom: 0; padding-bottom: 0;}
-        .comment-date { 
-            font-weight: 700; 
-            color: var(--secondary); 
-            font-size: 0.8rem; 
-            display: block;
-            margin-bottom: 3px;
-        }
-
-        /* Modal para Editar / Ver Detalles */
+        /* Modal */
         .modal { 
             display: none; 
             position: fixed; 
@@ -239,8 +266,8 @@
             background: var(--card-bg); 
             padding: 30px; 
             border-radius: 12px; 
-            width: 90%; 
-            max-width: 550px; 
+            width: 95%; 
+            max-width: 800px; 
             max-height: 90vh; 
             overflow-y: auto; 
             box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
@@ -255,9 +282,51 @@
         }
         .close-modal:hover { color: var(--primary); }
 
-        /* Responsive */
-        @media (max-width: 768px) {
+        /* Grid de formulario en Modal */
+        .form-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+        .full-width { grid-column: span 2; }
+
+        /* Vista Calendario */
+        .timeline-list {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        .task-card {
+            background: white;
+            padding: 15px 20px;
+            border-radius: 8px;
+            border-left: 5px solid var(--secondary);
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .task-date { font-weight: bold; color: var(--secondary); font-size: 1.1rem; }
+        .task-info h4 { margin: 0 0 5px 0; color: var(--primary); }
+        .task-info p { margin: 0; font-size: 0.9rem; color: #64748B; }
+        .task-type {
+            padding: 5px 12px;
+            border-radius: 15px;
+            font-size: 0.8rem;
+            font-weight: bold;
+            background: #E0F2FE;
+            color: #0369A1;
+        }
+
+        .pdf-link { display: inline-block; margin-top: 10px; color: var(--secondary); font-size: 0.85rem; font-weight: bold; text-decoration: none;}
+        .pdf-link:hover { text-decoration: underline; }
+
+        @media (max-width: 900px) {
             .container { grid-template-columns: 1fr; }
+            .form-grid { grid-template-columns: 1fr; }
+            .full-width { grid-column: span 1; }
         }
     </style>
 </head>
@@ -266,121 +335,225 @@
     <h1>TAIMINGO IA</h1>
     <div class="subtitle">SISTEMA INTELIGENTE DE GESTIÓN COMERCIAL</div>
 
-    <!-- Pestañas del abecedario generadas dinámicamente -->
-    <div class="alphabet-container" id="alphabet-tabs"></div>
+    <!-- Navegación Principal -->
+    <div class="main-tabs">
+        <button class="main-tab-btn active" onclick="switchView('crm', this)">Directorio CRM</button>
+        <button class="main-tab-btn" onclick="switchView('calendar', this)">Calendario / Seguimientos</button>
+    </div>
 
-    <div class="container">
-        
-        <!-- Panel de Registro Nuevo -->
-        <div class="panel">
-            <h2>Registrar Nueva Empresa</h2>
-            <form id="crm-form">
-                <label>Nombre de la Empresa</label>
-                <input type="text" id="company-name" required placeholder="Ej. Corporativo XYZ">
+    <!-- ================= VISTA CRM ================= -->
+    <div id="view-crm" class="view-section active">
+        <div class="alphabet-container" id="alphabet-tabs"></div>
 
-                <label>Contacto Principal</label>
-                <input type="text" id="contact-name" placeholder="Nombre del prospecto">
+        <div class="container">
+            <!-- Panel de Registro Nuevo -->
+            <div class="panel">
+                <h2>Registrar Nueva Empresa</h2>
+                <form id="crm-form">
+                    <!-- Datos de Empresa -->
+                    <div class="form-section-title">Datos de Empresa</div>
+                    <label>Nombre de la Empresa</label>
+                    <input type="text" id="company-name" required placeholder="Ej. Corporativo XYZ">
+                    
+                    <label>Ubicación</label>
+                    <input type="text" id="company-location" placeholder="Ciudad / Región">
+                    
+                    <label>Tipo de Empresa</label>
+                    <input type="text" id="company-type" placeholder="Ej. Manufactura, Retail">
+                    
+                    <label>Descripción del Negocio</label>
+                    <textarea id="company-desc" rows="2" placeholder="Giro, productos, necesidades..."></textarea>
 
-                <label>Teléfono / Correo</label>
-                <input type="text" id="contact-info" placeholder="Datos para contactar">
+                    <!-- Contacto Principal -->
+                    <div class="form-section-title">Contacto Principal</div>
+                    <label>Nombre</label>
+                    <input type="text" id="contact1-name" required>
+                    <label>Puesto</label>
+                    <input type="text" id="contact1-role">
+                    <label>Teléfono</label>
+                    <input type="text" id="contact1-phone">
+                    <label>Correo Electrónico</label>
+                    <input type="email" id="contact1-email">
 
-                <label>Estatus Comercial</label>
-                <select id="status">
-                    <option value="Prospección">Prospección</option>
-                    <option value="Contacto Inicial">Contacto Inicial</option>
-                    <option value="Presentación Agendada">Presentación Agendada</option>
-                    <option value="Negociación">Negociación</option>
-                    <option value="Cerrado">Cerrado / Cliente</option>
-                </select>
+                    <!-- Contacto Secundario -->
+                    <div class="form-section-title">Segundo Contacto (Opcional)</div>
+                    <label>Nombre</label>
+                    <input type="text" id="contact2-name">
+                    <label>Puesto</label>
+                    <input type="text" id="contact2-role">
+                    <label>Teléfono</label>
+                    <input type="text" id="contact2-phone">
 
-                <label>Comentarios / Bitácora Inicial</label>
-                <textarea id="initial-comment" rows="3" placeholder="Anota aquí los primeros detalles..."></textarea>
+                    <!-- Gestión Comercial -->
+                    <div class="form-section-title">Gestión y Estatus</div>
+                    <label>Estatus Comercial</label>
+                    <select id="status" required>
+                        <option value="Prospecto">Prospecto</option>
+                        <option value="Presentación">Presentación</option>
+                        <option value="Cierre">Cierre</option>
+                    </select>
 
-                <button type="submit">Guardar Empresa</button>
-            </form>
-        </div>
+                    <label>Comentarios / Bitácora Inicial</label>
+                    <textarea id="initial-comment" rows="2" placeholder="Anota los primeros detalles..."></textarea>
 
-        <!-- Panel del Directorio -->
-        <div class="panel" style="background: transparent; box-shadow: none; padding: 0;">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-                <h2 style="margin: 0; border: none; padding: 0;">Directorio: <span id="current-letter" style="color: var(--secondary);">Todos</span></h2>
+                    <label>Adjuntar Presentación / Propuesta (PDF)</label>
+                    <input type="file" id="pdf-upload" accept="application/pdf">
+
+                    <!-- Seguimiento (Calendario) -->
+                    <div class="form-section-title">Próximo Seguimiento</div>
+                    <label>Fecha</label>
+                    <input type="date" id="follow-date">
+                    <label>Hora</label>
+                    <input type="time" id="follow-time">
+                    <label>Tipo</label>
+                    <select id="follow-type">
+                        <option value="Llamada">Llamada</option>
+                        <option value="Correo">Correo</option>
+                        <option value="Mensaje">Mensaje / WhatsApp</option>
+                        <option value="Reunión Presencial">Reunión Presencial</option>
+                    </select>
+
+                    <button type="submit">Guardar Registro Integral</button>
+                </form>
             </div>
-            
-            <div class="companies-grid" id="companies-list">
-                <!-- Las tarjetas se inyectan aquí con JavaScript -->
+
+            <!-- Panel del Directorio -->
+            <div class="panel" style="background: transparent; box-shadow: none; padding: 0;">
+                <h2 style="margin-bottom: 20px; border: none; padding: 0;">Directorio: <span id="current-letter" style="color: var(--secondary);">Todos</span></h2>
+                <div class="companies-grid" id="companies-list"></div>
             </div>
         </div>
     </div>
 
-    <!-- Modal para Modificar TODOS los apartados y ver bitácora -->
+    <!-- ================= VISTA CALENDARIO / GANTT ================= -->
+    <div id="view-calendar" class="view-section">
+        <h2 style="text-align:center; color: var(--primary);">Próximos Seguimientos</h2>
+        <p style="text-align:center; color: #64748B; margin-bottom: 30px;">Ordenados cronológicamente</p>
+        
+        <div class="timeline-list" id="calendar-list">
+            <!-- Tareas inyectadas vía JS -->
+        </div>
+    </div>
+
+    <!-- ================= MODAL EDICIÓN INTEGRAL ================= -->
     <div id="edit-modal" class="modal">
         <div class="modal-content">
             <span class="close-modal" onclick="closeModal()">&times;</span>
-            <h2 style="color: var(--primary); margin-top: 0;">Detalle y Modificación</h2>
+            <h2 style="color: var(--primary); margin-top: 0; margin-bottom: 20px;">Ficha Técnica y Negociación</h2>
             
             <form id="edit-form">
                 <input type="hidden" id="edit-id">
                 
-                <label>Nombre de la Empresa</label>
-                <input type="text" id="edit-name" required>
+                <div class="form-grid">
+                    <!-- Columna 1 -->
+                    <div>
+                        <label>Empresa</label>
+                        <input type="text" id="edit-name" required>
+                        
+                        <label>Ubicación</label>
+                        <input type="text" id="edit-location">
+                        
+                        <label>Tipo</label>
+                        <input type="text" id="edit-type">
+                        
+                        <div class="form-section-title">Contacto 1</div>
+                        <input type="text" id="edit-c1-name" placeholder="Nombre">
+                        <input type="text" id="edit-c1-role" placeholder="Puesto">
+                        <input type="text" id="edit-c1-phone" placeholder="Teléfono">
+                        <input type="text" id="edit-c1-email" placeholder="Correo">
+                    </div>
 
-                <label>Contacto Principal</label>
-                <input type="text" id="edit-contact">
+                    <!-- Columna 2 -->
+                    <div>
+                        <label>Estatus Comercial</label>
+                        <select id="edit-status">
+                            <option value="Prospecto">Prospecto</option>
+                            <option value="Presentación">Presentación</option>
+                            <option value="Cierre">Cierre</option>
+                        </select>
+                        
+                        <label>Descripción</label>
+                        <textarea id="edit-desc" rows="3"></textarea>
 
-                <label>Teléfono / Correo</label>
-                <input type="text" id="edit-info">
+                        <div class="form-section-title">Contacto 2</div>
+                        <input type="text" id="edit-c2-name" placeholder="Nombre">
+                        <input type="text" id="edit-c2-role" placeholder="Puesto">
+                        <input type="text" id="edit-c2-phone" placeholder="Teléfono">
+                    </div>
 
-                <label>Estatus Comercial</label>
-                <select id="edit-status">
-                    <option value="Prospección">Prospección</option>
-                    <option value="Contacto Inicial">Contacto Inicial</option>
-                    <option value="Presentación Agendada">Presentación Agendada</option>
-                    <option value="Negociación">Negociación</option>
-                    <option value="Cerrado">Cerrado / Cliente</option>
-                </select>
+                    <!-- Seguimiento y Archivos -->
+                    <div class="full-width" style="border-top: 1px dashed #CBD5E1; margin-top: 10px; padding-top: 10px;">
+                        <div class="form-section-title">Próximo Seguimiento</div>
+                        <div style="display:flex; gap:10px;">
+                            <input type="date" id="edit-f-date">
+                            <input type="time" id="edit-f-time">
+                            <select id="edit-f-type">
+                                <option value="Llamada">Llamada</option>
+                                <option value="Correo">Correo</option>
+                                <option value="Mensaje">Mensaje</option>
+                                <option value="Reunión Presencial">Reunión Presencial</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="full-width">
+                        <label>Adjuntar Nuevo PDF (Reemplazará al anterior)</label>
+                        <input type="file" id="edit-pdf" accept="application/pdf">
+                        <div id="current-pdf-link"></div>
+                    </div>
 
-                <div style="margin-top: 25px; border-top: 2px dashed #CBD5E1; padding-top: 15px;">
-                    <label style="color: var(--secondary);">+ Agregar Nueva Actualización</label>
-                    <textarea id="new-update" rows="3" placeholder="Escribe un nuevo comentario o avance para agregarlo al historial..."></textarea>
+                    <!-- Nuevo Comentario -->
+                    <div class="full-width" style="margin-top: 15px; border-top: 2px dashed #CBD5E1; padding-top: 15px;">
+                        <label style="color: var(--secondary);">+ Agregar Nueva Actualización a Bitácora</label>
+                        <textarea id="new-update" rows="3" placeholder="Avances, minutas, acuerdos..."></textarea>
+                    </div>
                 </div>
 
-                <button type="button" onclick="saveEdits()">Guardar Cambios</button>
+                <button type="button" onclick="saveEdits()">Guardar Cambios Integrales</button>
             </form>
 
             <h3 style="margin-top: 30px; font-size: 1.1rem; color: var(--primary);">Historial de Actualizaciones</h3>
-            <div id="modal-comments-list" class="comments-list">
-                <!-- Se llena mediante JS -->
+            <div id="modal-comments-list" style="max-height:200px; overflow-y:auto; background:var(--background); padding:15px; border-radius:8px;">
+                <!-- JS fill -->
             </div>
         </div>
     </div>
 
     <script>
-        // Cargar datos guardados en el navegador o iniciar vacío
-        let companies = JSON.parse(localStorage.getItem('taimingo_crm_db')) || [];
+        let companies = JSON.parse(localStorage.getItem('taimingo_crm_v2')) || [];
         let currentFilter = 'Todos';
 
         document.addEventListener("DOMContentLoaded", () => {
             buildAlphabet();
             renderCompanies();
+            renderCalendar();
         });
 
-        // Guarda permanentemente en el navegador
         function syncData() {
-            localStorage.setItem('taimingo_crm_db', JSON.stringify(companies));
+            localStorage.setItem('taimingo_crm_v2', JSON.stringify(companies));
         }
 
-        // 1. Construir botones del abecedario
+        // Navegación de Pestañas Principales
+        function switchView(viewId, btn) {
+            document.querySelectorAll('.view-section').forEach(el => el.classList.remove('active'));
+            document.querySelectorAll('.main-tab-btn').forEach(el => el.classList.remove('active'));
+            
+            document.getElementById('view-' + viewId).classList.add('active');
+            btn.classList.add('active');
+            
+            if(viewId === 'calendar') renderCalendar();
+        }
+
+        // Abecedario
         function buildAlphabet() {
             const container = document.getElementById('alphabet-tabs');
             container.innerHTML = `<div class="letter-tab active" onclick="filterData('Todos', this)">Todos</div>`;
             const letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("");
-            
             letters.forEach(letter => {
                 container.innerHTML += `<div class="letter-tab" onclick="filterData('${letter}', this)">${letter}</div>`;
             });
         }
 
-        // Filtrado por letra
         function filterData(letter, btnElement) {
             currentFilter = letter;
             document.querySelectorAll('.letter-tab').forEach(btn => btn.classList.remove('active'));
@@ -389,167 +562,244 @@
             renderCompanies();
         }
 
-        // 2. Renderizar y acomodar alfabéticamente
+        // Renderizar Directorio (Ordenado Alfabéticamente)
         function renderCompanies() {
             const list = document.getElementById('companies-list');
             list.innerHTML = '';
 
-            // Filtrar según pestaña activa
             let filtered = companies;
             if (currentFilter !== 'Todos') {
                 filtered = companies.filter(c => c.name.toUpperCase().startsWith(currentFilter));
             }
-
-            // Ordenamiento alfabético estricto A-Z
+            
+            // Orden Alfabético A-Z
             filtered.sort((a, b) => a.name.localeCompare(b.name, 'es', { sensitivity: 'base' }));
 
             if (filtered.length === 0) {
-                list.innerHTML = '<p style="color:#94A3B8; font-style:italic;">No se encontraron empresas registradas.</p>';
+                list.innerHTML = '<p style="color:#94A3B8;">No hay empresas en esta letra.</p>';
                 return;
             }
 
-            filtered.forEach(company => {
-                // Detectar si requiere resalte por presentación
-                const needsHighlight = company.status === 'Presentación Agendada';
-                const highlightClass = needsHighlight ? 'presentation-highlight' : '';
-                const badgeHTML = needsHighlight ? '<div class="badge-presentacion">¡Presentación Próxima!</div>' : '';
+            filtered.forEach(c => {
+                // Configurar clases visuales según estatus
+                let statusClass = '';
+                let badgeClass = '';
+                if (c.status === 'Prospecto') { statusClass = 'status-prospecto'; badgeClass = 'badge-prospecto'; }
+                if (c.status === 'Presentación') { statusClass = 'status-presentacion'; badgeClass = 'badge-presentacion'; }
+                if (c.status === 'Cierre') { statusClass = 'status-cierre'; badgeClass = 'badge-cierre'; }
 
-                // Extraer el comentario más reciente para la vista rápida
                 let latestCommentHTML = '';
-                if (company.comments && company.comments.length > 0) {
-                    const last = company.comments[company.comments.length - 1];
-                    latestCommentHTML = `
-                        <div class="latest-comment">
-                            <strong>Última act. (${last.date}):</strong><br>
-                            ${last.text.substring(0, 80)}${last.text.length > 80 ? '...' : ''}
-                        </div>
-                    `;
-                } else {
-                    latestCommentHTML = `<div class="latest-comment" style="color:#CBD5E1; font-style:italic;">Sin comentarios.</div>`;
+                if (c.comments && c.comments.length > 0) {
+                    const last = c.comments[c.comments.length - 1];
+                    latestCommentHTML = `<div class="latest-comment"><strong>Última act. (${last.date}):</strong><br>${last.text}</div>`;
                 }
 
-                // Armar tarjeta HTML
-                const card = `
-                    <div class="card ${highlightClass}">
-                        ${badgeHTML}
-                        <h3>${company.name}</h3>
-                        <p><strong>Contacto:</strong> ${company.contact || 'N/A'}</p>
-                        <p><strong>Datos:</strong> ${company.info || 'N/A'}</p>
-                        <p><strong>Estatus:</strong> ${company.status}</p>
+                let pdfHTML = c.pdfBase64 ? `<a href="${c.pdfBase64}" download="${c.pdfName}" class="pdf-link">📄 Descargar PDF</a>` : '';
+
+                list.innerHTML += `
+                    <div class="card ${statusClass}">
+                        <div class="badge ${badgeClass}">${c.status}</div>
+                        <h3>${c.name}</h3>
+                        <p><strong>Ubicación:</strong> ${c.location || 'N/A'}</p>
+                        <p><strong>Contacto:</strong> ${c.c1_name || 'N/A'} - ${c.c1_role || ''}</p>
+                        <p><strong>Tel/Mail:</strong> ${c.c1_phone || ''} | ${c.c1_email || ''}</p>
+                        ${c.followDate ? `<p style="color:var(--secondary); font-weight:bold; margin-top:8px;">Próx: ${c.followDate} ${c.followTime} (${c.followType})</p>` : ''}
+                        ${pdfHTML}
                         ${latestCommentHTML}
-                        <button class="btn-outline" onclick="openModal(${company.id})">Modificar / Historial</button>
+                        <button class="btn-outline" onclick="openModal(${c.id})">Abrir Ficha Completa</button>
                     </div>
                 `;
-                list.innerHTML += card;
             });
         }
 
-        // 3. Registrar nueva empresa
-        document.getElementById('crm-form').addEventListener('submit', function(e) {
+        // Renderizar Calendario (Cronológico)
+        function renderCalendar() {
+            const list = document.getElementById('calendar-list');
+            list.innerHTML = '';
+
+            const tasks = companies.filter(c => c.followDate).sort((a, b) => {
+                const dateA = new Date(`${a.followDate}T${a.followTime || '00:00'}`);
+                const dateB = new Date(`${b.followDate}T${b.followTime || '00:00'}`);
+                return dateA - dateB;
+            });
+
+            if(tasks.length === 0) {
+                list.innerHTML = '<p style="text-align:center;">No hay seguimientos programados.</p>';
+                return;
+            }
+
+            tasks.forEach(t => {
+                list.innerHTML += `
+                    <div class="task-card">
+                        <div class="task-info">
+                            <h4>${t.name}</h4>
+                            <p>Contacto: ${t.c1_name} (${t.c1_phone})</p>
+                            <span class="task-type">${t.followType}</span>
+                        </div>
+                        <div class="task-date">
+                            ${t.followDate} <br> <span style="font-size:0.9rem; color:#64748B;">${t.followTime}</span>
+                        </div>
+                    </div>
+                `;
+            });
+        }
+
+        // Leer PDF
+        function getBase64(file) {
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.readAsDataURL(file);
+                reader.onload = () => resolve(reader.result);
+                reader.onerror = error => reject(error);
+            });
+        }
+
+        // Registrar Nueva Empresa
+        document.getElementById('crm-form').addEventListener('submit', async function(e) {
             e.preventDefault();
             
             const commentText = document.getElementById('initial-comment').value.trim();
-            const initialCommentsArray = [];
+            const initialCommentsArray = commentText ? [{ date: getFormattedDate(), text: commentText }] : [];
             
-            if (commentText !== '') {
-                initialCommentsArray.push({
-                    date: getFormattedDate(),
-                    text: commentText
-                });
+            const fileInput = document.getElementById('pdf-upload');
+            let pdfData = null;
+            let pdfName = null;
+            if (fileInput.files.length > 0) {
+                pdfData = await getBase64(fileInput.files[0]);
+                pdfName = fileInput.files[0].name;
             }
 
             const newCompany = {
                 id: Date.now(),
                 name: document.getElementById('company-name').value.trim(),
-                contact: document.getElementById('contact-name').value.trim(),
-                info: document.getElementById('contact-info').value.trim(),
+                location: document.getElementById('company-location').value.trim(),
+                type: document.getElementById('company-type').value.trim(),
+                desc: document.getElementById('company-desc').value.trim(),
+                c1_name: document.getElementById('contact1-name').value.trim(),
+                c1_role: document.getElementById('contact1-role').value.trim(),
+                c1_phone: document.getElementById('contact1-phone').value.trim(),
+                c1_email: document.getElementById('contact1-email').value.trim(),
+                c2_name: document.getElementById('contact2-name').value.trim(),
+                c2_role: document.getElementById('contact2-role').value.trim(),
+                c2_phone: document.getElementById('contact2-phone').value.trim(),
                 status: document.getElementById('status').value,
+                followDate: document.getElementById('follow-date').value,
+                followTime: document.getElementById('follow-time').value,
+                followType: document.getElementById('follow-type').value,
+                pdfBase64: pdfData,
+                pdfName: pdfName,
                 comments: initialCommentsArray
             };
 
             companies.push(newCompany);
             syncData();
-            this.reset(); // Limpiar formulario
-            
-            // Volver a la pestaña "Todos" para ver el registro nuevo fácilmente
+            this.reset();
             document.querySelector('.letter-tab').click(); 
         });
 
-        // 4. Modal para Modificar todos los apartados
+        // Abrir Modal
         function openModal(id) {
-            const company = companies.find(c => c.id === id);
-            if (!company) return;
+            const c = companies.find(comp => comp.id === id);
+            if (!c) return;
 
-            document.getElementById('edit-id').value = company.id;
-            document.getElementById('edit-name').value = company.name;
-            document.getElementById('edit-contact').value = company.contact;
-            document.getElementById('edit-info').value = company.info;
-            document.getElementById('edit-status').value = company.status;
-            document.getElementById('new-update').value = ''; // Limpiar campo de nueva actualización
+            document.getElementById('edit-id').value = c.id;
+            document.getElementById('edit-name').value = c.name;
+            document.getElementById('edit-location').value = c.location || '';
+            document.getElementById('edit-type').value = c.type || '';
+            document.getElementById('edit-desc').value = c.desc || '';
+            
+            document.getElementById('edit-c1-name').value = c.c1_name || '';
+            document.getElementById('edit-c1-role').value = c.c1_role || '';
+            document.getElementById('edit-c1-phone').value = c.c1_phone || '';
+            document.getElementById('edit-c1-email').value = c.c1_email || '';
+            
+            document.getElementById('edit-c2-name').value = c.c2_name || '';
+            document.getElementById('edit-c2-role').value = c.c2_role || '';
+            document.getElementById('edit-c2-phone').value = c.c2_phone || '';
+            
+            document.getElementById('edit-status').value = c.status;
+            
+            document.getElementById('edit-f-date').value = c.followDate || '';
+            document.getElementById('edit-f-time').value = c.followTime || '';
+            document.getElementById('edit-f-type').value = c.followType || 'Llamada';
+            
+            document.getElementById('new-update').value = ''; 
 
-            // Llenar el historial (Mostrando del más reciente al más antiguo)
+            const pdfLinkContainer = document.getElementById('current-pdf-link');
+            if(c.pdfBase64) {
+                pdfLinkContainer.innerHTML = `<a href="${c.pdfBase64}" download="${c.pdfName}" class="pdf-link">Archivo actual: ${c.pdfName} (Descargar)</a>`;
+            } else {
+                pdfLinkContainer.innerHTML = '<span style="font-size:0.8rem; color:#94A3B8;">Sin documento adjunto</span>';
+            }
+
             const historyContainer = document.getElementById('modal-comments-list');
             historyContainer.innerHTML = '';
-            
-            if (company.comments && company.comments.length > 0) {
-                const reversedComments = [...company.comments].reverse();
-                reversedComments.forEach(c => {
+            if (c.comments && c.comments.length > 0) {
+                [...c.comments].reverse().forEach(comment => {
                     historyContainer.innerHTML += `
-                        <div class="comment-item">
-                            <span class="comment-date">${c.date}</span>
-                            ${c.text}
-                        </div>
-                    `;
+                        <div style="border-bottom:1px solid #CBD5E1; padding-bottom:8px; margin-bottom:8px;">
+                            <strong style="color:var(--secondary); font-size:0.8rem;">${comment.date}</strong><br>
+                            ${comment.text}
+                        </div>`;
                 });
-            } else {
-                historyContainer.innerHTML = '<p style="color:#94A3B8; font-style:italic;">No hay historial registrado.</p>';
             }
 
             document.getElementById('edit-modal').style.display = 'flex';
         }
 
-        function closeModal() {
-            document.getElementById('edit-modal').style.display = 'none';
-        }
+        function closeModal() { document.getElementById('edit-modal').style.display = 'none'; }
 
-        // 5. Guardar las modificaciones hechas en el modal
-        function saveEdits() {
+        // Guardar Ediciones
+        async function saveEdits() {
             const id = parseInt(document.getElementById('edit-id').value);
             const index = companies.findIndex(c => c.id === id);
-            if (index === -1) return;
-
-            // Actualizar datos generales
+            
             companies[index].name = document.getElementById('edit-name').value.trim();
-            companies[index].contact = document.getElementById('edit-contact').value.trim();
-            companies[index].info = document.getElementById('edit-info').value.trim();
+            companies[index].location = document.getElementById('edit-location').value.trim();
+            companies[index].type = document.getElementById('edit-type').value.trim();
+            companies[index].desc = document.getElementById('edit-desc').value.trim();
+            
+            companies[index].c1_name = document.getElementById('edit-c1-name').value.trim();
+            companies[index].c1_role = document.getElementById('edit-c1-role').value.trim();
+            companies[index].c1_phone = document.getElementById('edit-c1-phone').value.trim();
+            companies[index].c1_email = document.getElementById('edit-c1-email').value.trim();
+            
+            companies[index].c2_name = document.getElementById('edit-c2-name').value.trim();
+            companies[index].c2_role = document.getElementById('edit-c2-role').value.trim();
+            companies[index].c2_phone = document.getElementById('edit-c2-phone').value.trim();
+            
             companies[index].status = document.getElementById('edit-status').value;
+            companies[index].followDate = document.getElementById('edit-f-date').value;
+            companies[index].followTime = document.getElementById('edit-f-time').value;
+            companies[index].followType = document.getElementById('edit-f-type').value;
 
-            // Si hay un nuevo comentario, agregarlo a la bitácora
+            // Revisar si se subió un nuevo PDF
+            const fileInput = document.getElementById('edit-pdf');
+            if (fileInput.files.length > 0) {
+                companies[index].pdfBase64 = await getBase64(fileInput.files[0]);
+                companies[index].pdfName = fileInput.files[0].name;
+            }
+
             const newUpdateText = document.getElementById('new-update').value.trim();
-            if (newUpdateText !== '') {
-                companies[index].comments.push({
-                    date: getFormattedDate(),
-                    text: newUpdateText
-                });
+            if (newUpdateText) {
+                if(!companies[index].comments) companies[index].comments = [];
+                companies[index].comments.push({ date: getFormattedDate(), text: newUpdateText });
             }
 
             syncData();
             closeModal();
-            renderCompanies(); // Refrescar vista
+            renderCompanies();
+            renderCalendar();
         }
 
-        // Utilidad: Obtener fecha formateada
         function getFormattedDate() {
             const d = new Date();
             return d.toLocaleDateString('es-MX') + ' ' + d.toLocaleTimeString('es-MX', {hour: '2-digit', minute:'2-digit'});
         }
 
-        // Cerrar modal al hacer clic afuera
         window.onclick = function(event) {
             const modal = document.getElementById('edit-modal');
-            if (event.target == modal) {
-                closeModal();
-            }
+            if (event.target == modal) closeModal();
         }
     </script>
 </body>
