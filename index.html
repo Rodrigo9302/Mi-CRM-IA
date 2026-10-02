@@ -269,7 +269,6 @@
     </div>
 
     <script>
-        // CONFIGURACIÓN DE SUPABASE
         const SUPABASE_URL = 'https://mzocynrosmrgsbjyvlze.supabase.co';
         const SUPABASE_KEY = 'sb_publishable_c3IbBBR88bmU77qK76aYlQ_GLGm2hY4';
         
@@ -278,36 +277,34 @@
         let companies = [];
         let currentFilter = 'Todos';
 
-        document.addEventListener("DOMContentLoaded", () => {
+        document.addEventListener("DOMContentLoaded", function() {
             buildAlphabet();
             loadCompanies();
             setupRealtime();
         });
 
-        // Escuchar cambios en tiempo real
         function setupRealtime() {
             db.channel('public:empresas')
-                .on('postgres_changes', { event: '*', schema: 'public', table: 'empresas' }, () => {
+                .on('postgres_changes', { event: '*', schema: 'public', table: 'empresas' }, function() {
                     loadCompanies();
                 })
                 .subscribe();
         }
 
-        // Cargar empresas de Supabase
         async function loadCompanies() {
-            const { data, error } = await db.from('empresas').select('*');
-            if (error) {
-                console.error("Error al cargar empresas:", error);
+            const result = await db.from('empresas').select('*');
+            if (result.error) {
+                console.error("Error al cargar empresas:", result.error);
                 return;
             }
-            companies = data || [];
+            companies = result.data || [];
             renderCompanies();
             renderCalendar();
         }
 
         function switchView(viewId, btn) {
-            document.querySelectorAll('.view-section').forEach(el => el.classList.remove('active'));
-            document.querySelectorAll('.main-tab-btn').forEach(el => el.classList.remove('active'));
+            document.querySelectorAll('.view-section').forEach(function(el) { el.classList.remove('active'); });
+            document.querySelectorAll('.main-tab-btn').forEach(function(el) { el.classList.remove('active'); });
             document.getElementById('view-' + viewId).classList.add('active');
             btn.classList.add('active');
             if(viewId === 'calendar') renderCalendar();
@@ -315,15 +312,15 @@
 
         function buildAlphabet() {
             const container = document.getElementById('alphabet-tabs');
-            container.innerHTML = `<div class="letter-tab active" onclick="filterData('Todos', this)">Todos</div>`;
-            "ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("").forEach(letter => {
-                container.innerHTML += `<div class="letter-tab" onclick="filterData('${letter}', this)">${letter}</div>`;
+            container.innerHTML = '<div class="letter-tab active" onclick="filterData(\'Todos\', this)">Todos</div>';
+            "ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("").forEach(function(letter) {
+                container.innerHTML += '<div class="letter-tab" onclick="filterData(\'' + letter + '\', this)">' + letter + '</div>';
             });
         }
 
         function filterData(letter, btnElement) {
             currentFilter = letter;
-            document.querySelectorAll('.letter-tab').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.letter-tab').forEach(function(btn) { btn.classList.remove('active'); });
             btnElement.classList.add('active');
             document.getElementById('current-letter').textContent = letter;
             renderCompanies();
@@ -335,41 +332,58 @@
 
             let filtered = companies;
             if (currentFilter !== 'Todos') {
-                filtered = companies.filter(c => c.name && c.name.toUpperCase().startsWith(currentFilter));
+                filtered = companies.filter(function(c) {
+                    return c.name && c.name.toUpperCase().startsWith(currentFilter);
+                });
             }
             
-            filtered.sort((a, b) => (a.name || '').localeCompare(b.name || '', 'es', { sensitivity: 'base' }));
+            filtered.sort(function(a, b) {
+                return (a.name || '').localeCompare(b.name || '', 'es', { sensitivity: 'base' });
+            });
 
             if (filtered.length === 0) {
                 list.innerHTML = '<p style="color:#94A3B8;">No hay empresas registradas.</p>';
                 return;
             }
 
-            filtered.forEach(c => {
-                let statusClass = c.status === 'Presentación' ? 'status-presentacion' : (c.status === 'Cierre' ? 'status-cierre' : 'status-prospecto');
-                let badgeClass = c.status === 'Presentación' ? 'badge-presentacion' : (c.status === 'Cierre' ? 'badge-cierre' : 'badge-prospecto');
-
-                let latestCommentHTML = '';
-                if (c.comments && c.comments.length > 0) {
-                    const last = c.comments[c.comments.length - 1];
-                    latestCommentHTML = `<div class="latest-comment"><strong>Última act. (${last.date}):</strong><br>${last.text}</div>`;
+            filtered.forEach(function(c) {
+                let statusClass = 'status-prospecto';
+                let badgeClass = 'badge-prospecto';
+                if (c.status === 'Presentación') {
+                    statusClass = 'status-presentacion';
+                    badgeClass = 'badge-presentacion';
+                } else if (c.status === 'Cierre') {
+                    statusClass = 'status-cierre';
+                    badgeClass = 'badge-cierre';
                 }
 
-                let pdfHTML = c.pdf_url ? `<a href="${c.pdf_url}" target="_blank" class="pdf-link">📄 Ver / Descargar PDF</a>` : '';
+                let latestCommentHTML = '';
+                if (c.comments && Array.isArray(c.comments) && c.comments.length > 0) {
+                    const last = c.comments[c.comments.length - 1];
+                    latestCommentHTML = '<div class="latest-comment"><strong>Última act. (' + (last.date || '') + '):</strong><br>' + (last.text || '') + '</div>';
+                }
 
-                list.innerHTML += `
-                    <div class="card ${statusClass}">
-                        <div class="badge ${badgeClass}">${c.status || 'Prospecto'}</div>
-                        <h3>${c.name}</h3>
-                        <p><strong>Ubicación:</strong> ${c.location || 'N/A'}</p>
-                        <p><strong>Contacto:</strong> ${c.c1_name || 'N/A'} ${c.c1_role ? '- ' + c.c1_role : ''}</p>
-                        <p><strong>Tel/Mail:</strong> ${c.c1_phone || ''} | ${c.c1_email || ''}</p>
-                        ${c.follow_date ? `<p style="color:var(--secondary); font-weight:bold; margin-top:8px;">Próx: ${c.follow_date} ${c.follow_time \vert{}\vert{} ''} (${c.follow_type || 'Seguimiento'})</p>` : ''}
-                        ${pdfHTML}
-                        ${latestCommentHTML}
-                        <button class="btn-outline" onclick="openModal(${c.id})">Abrir Ficha Completa</button>
-                    </div>
-                `;
+                let pdfHTML = c.pdf_url ? '<a href="' + c.pdf_url + '" target="_blank" class="pdf-link">📄 Ver / Descargar PDF</a>' : '';
+
+                let followHTML = '';
+                if (c.follow_date) {
+                    followHTML = '<p style="color:var(--secondary); font-weight:bold; margin-top:8px;">Próx: ' + c.follow_date + ' ' + (c.follow_time || '') + ' (' + (c.follow_type || 'Seguimiento') + ')</p>';
+                }
+
+                const cardHTML = 
+                    '<div class="card ' + statusClass + '">' +
+                        '<div class="badge ' + badgeClass + '">' + (c.status || 'Prospecto') + '</div>' +
+                        '<h3>' + (c.name || '') + '</h3>' +
+                        '<p><strong>Ubicación:</strong> ' + (c.location || 'N/A') + '</p>' +
+                        '<p><strong>Contacto:</strong> ' + (c.c1_name || 'N/A') + (c.c1_role ? ' - ' + c.c1_role : '') + '</p>' +
+                        '<p><strong>Tel/Mail:</strong> ' + (c.c1_phone || '') + ' | ' + (c.c1_email || '') + '</p>' +
+                        followHTML +
+                        pdfHTML +
+                        latestCommentHTML +
+                        '<button class="btn-outline" onclick="openModal(\'' + c.id + '\')">Abrir Ficha Completa</button>' +
+                    '</div>';
+
+                list.innerHTML += cardHTML;
             });
         }
 
@@ -377,44 +391,42 @@
             const list = document.getElementById('calendar-list');
             list.innerHTML = '';
 
-            const tasks = companies.filter(c => c.follow_date).sort((a, b) => {
-                return new Date(`${a.follow_date}T${a.follow_time || '00:00'}`) - new Date(`${b.follow_date}T${b.follow_time || '00:00'}`);
+            const tasks = companies.filter(function(c) { return c.follow_date; }).sort(function(a, b) {
+                return new Date(a.follow_date + 'T' + (a.follow_time || '00:00')) - new Date(b.follow_date + 'T' + (b.follow_time || '00:00'));
             });
 
-            if(tasks.length === 0) {
+            if (tasks.length === 0) {
                 list.innerHTML = '<p style="text-align:center;">No hay seguimientos programados.</p>';
                 return;
             }
 
-            tasks.forEach(t => {
-                list.innerHTML += `
-                    <div class="task-card">
-                        <div class="task-info">
-                            <h4>${t.name}</h4>
-                            <p>Contacto: ${t.c1_name || 'N/A'} (${t.c1_phone || 'Sin tel'})</p>
-                            <span class="task-type">${t.follow_type || 'Seguimiento'}</span>
-                        </div>
-                        <div class="task-date">
-                            ${t.follow_date} <br> <span style="font-size:0.9rem; color:#64748B;">${t.follow_time || ''}</span>
-                        </div>
-                    </div>
-                `;
+            tasks.forEach(function(t) {
+                const itemHTML = 
+                    '<div class="task-card">' +
+                        '<div class="task-info">' +
+                            '<h4>' + (t.name || '') + '</h4>' +
+                            '<p>Contacto: ' + (t.c1_name || 'N/A') + ' (' + (t.c1_phone || 'Sin tel') + ')</p>' +
+                            '<span class="task-type">' + (t.follow_type || 'Seguimiento') + '</span>' +
+                        '</div>' +
+                        '<div class="task-date">' +
+                            (t.follow_date || '') + ' <br> <span style="font-size:0.9rem; color:#64748B;">' + (t.follow_time || '') + '</span>' +
+                        '</div>' +
+                    '</div>';
+                list.innerHTML += itemHTML;
             });
         }
 
-        // Subir PDF a Supabase Storage
         async function uploadPDF(file) {
-            const fileName = `${Date.now()}_${file.name}`;
-            const { data, error } = await db.storage.from('archivos_crm').upload(fileName, file);
-            if (error) {
-                console.error("Error al subir archivo:", error);
+            const fileName = Date.now() + '_' + file.name;
+            const res = await db.storage.from('archivos_crm').upload(fileName, file);
+            if (res.error) {
+                console.error("Error al subir archivo:", res.error);
                 return null;
             }
-            const { data: publicUrlData } = db.storage.from('archivos_crm').getPublicUrl(fileName);
+            const publicUrlData = db.storage.from('archivos_crm').getPublicUrl(fileName).data;
             return { url: publicUrlData.publicUrl, name: file.name };
         }
 
-        // Guardar nuevo registro
         document.getElementById('crm-form').addEventListener('submit', async function(e) {
             e.preventDefault();
             const btn = document.getElementById('btn-save');
@@ -456,12 +468,12 @@
                 comments: initialComments
             };
 
-            const { error } = await db.from('empresas').insert([record]);
+            const res = await db.from('empresas').insert([record]);
             btn.disabled = false;
             btn.textContent = 'Guardar Registro Integral';
 
-            if (error) {
-                alert("Error al guardar: " + error.message);
+            if (res.error) {
+                alert("Error al guardar: " + res.error.message);
             } else {
                 this.reset();
                 loadCompanies();
@@ -469,7 +481,7 @@
         });
 
         function openModal(id) {
-            const c = companies.find(comp => comp.id === id);
+            const c = companies.find(function(comp) { return String(comp.id) === String(id); });
             if (!c) return;
 
             document.getElementById('edit-id').value = c.id;
@@ -497,20 +509,20 @@
 
             const pdfLinkContainer = document.getElementById('current-pdf-link');
             if(c.pdf_url) {
-                pdfLinkContainer.innerHTML = `<a href="${c.pdf_url}" target="_blank" class="pdf-link">Archivo actual: ${c.pdf_name || 'Ver PDF'}</a>`;
+                pdfLinkContainer.innerHTML = '<a href="' + c.pdf_url + '" target="_blank" class="pdf-link">Archivo actual: ' + (c.pdf_name || 'Ver PDF') + '</a>';
             } else {
                 pdfLinkContainer.innerHTML = '<span style="font-size:0.8rem; color:#94A3B8;">Sin documento adjunto</span>';
             }
 
             const historyContainer = document.getElementById('modal-comments-list');
             historyContainer.innerHTML = '';
-            if (c.comments && c.comments.length > 0) {
-                [...c.comments].reverse().forEach(comment => {
-                    historyContainer.innerHTML += `
-                        <div style="border-bottom:1px solid #CBD5E1; padding-bottom:8px; margin-bottom:8px;">
-                            <strong style="color:var(--secondary); font-size:0.8rem;">${comment.date}</strong><br>
-                            ${comment.text}
-                        </div>`;
+            if (c.comments && Array.isArray(c.comments) && c.comments.length > 0) {
+                [...c.comments].reverse().forEach(function(comment) {
+                    historyContainer.innerHTML += 
+                        '<div style="border-bottom:1px solid #CBD5E1; padding-bottom:8px; margin-bottom:8px;">' +
+                            '<strong style="color:var(--secondary); font-size:0.8rem;">' + (comment.date || '') + '</strong><br>' +
+                            (comment.text || '') +
+                        '</div>';
                 });
             }
 
@@ -520,11 +532,11 @@
         function closeModal() { document.getElementById('edit-modal').style.display = 'none'; }
 
         async function saveEdits() {
-            const id = parseInt(document.getElementById('edit-id').value);
-            const c = companies.find(comp => comp.id === id);
+            const id = document.getElementById('edit-id').value;
+            const c = companies.find(function(comp) { return String(comp.id) === String(id); });
 
-            let pdf_url = c.pdf_url;
-            let pdf_name = c.pdf_name;
+            let pdf_url = c ? c.pdf_url : null;
+            let pdf_name = c ? c.pdf_name : null;
 
             const fileInput = document.getElementById('edit-pdf');
             if (fileInput.files.length > 0) {
@@ -535,7 +547,7 @@
                 }
             }
 
-            let updatedComments = c.comments || [];
+            let updatedComments = (c && c.comments) ? c.comments : [];
             const newUpdateText = document.getElementById('new-update').value.trim();
             if (newUpdateText) {
                 updatedComments.push({ date: getFormattedDate(), text: newUpdateText });
@@ -562,10 +574,10 @@
                 comments: updatedComments
             };
 
-            const { error } = await db.from('empresas').update(updates).eq('id', id);
+            const res = await db.from('empresas').update(updates).eq('id', id);
 
-            if (error) {
-                alert("Error al actualizar: " + error.message);
+            if (res.error) {
+                alert("Error al actualizar: " + res.error.message);
             } else {
                 closeModal();
                 loadCompanies();
