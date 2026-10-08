@@ -1,598 +1,715 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TAIMINGO IA - CRM</title>
-    <!-- Supabase JS SDK -->
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <style>
-        :root {
-            --primary: #0F172A;
-            --secondary: #3B82F6;
-            --background: #F8FAFC;
-            --text: #1E293B;
-            --card-bg: #FFFFFF;
-            --highlight-border: #F59E0B;
-            --highlight-bg: #FFFBEB;
-            --success-border: #10B981;
-            --success-bg: #ECFDF5;
-        }
-
-        body { 
-            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif; 
-            background: var(--background); 
-            margin: 0; 
-            padding: 20px; 
-            color: var(--text); 
-        }
-
-        h1 { color: var(--primary); text-align: center; font-size: 2.8rem; margin-bottom: 5px; text-transform: uppercase; letter-spacing: 3px; }
-        .subtitle { text-align: center; color: var(--secondary); margin-bottom: 20px; font-weight: 600; letter-spacing: 1px; }
-
-        .main-tabs { display: flex; justify-content: center; gap: 15px; margin-bottom: 30px; }
-        .main-tab-btn { padding: 12px 25px; font-size: 1.1rem; font-weight: bold; border: 2px solid var(--secondary); background: transparent; color: var(--secondary); border-radius: 8px; cursor: pointer; transition: all 0.3s; }
-        .main-tab-btn.active, .main-tab-btn:hover { background: var(--secondary); color: white; }
-
-        .view-section { display: none; }
-        .view-section.active { display: block; }
-
-        .container { max-width: 1400px; margin: auto; display: grid; grid-template-columns: 350px 1fr; gap: 25px; }
-
-        .panel { background: var(--card-bg); padding: 25px; border-radius: 12px; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); height: fit-content; }
-        .panel h2 { margin-top: 0; color: var(--primary); font-size: 1.3rem; border-bottom: 2px solid var(--background); padding-bottom: 10px; }
-
-        .form-section-title { margin-top: 20px; padding-top: 10px; border-top: 1px dashed #CBD5E1; color: var(--secondary); font-size: 0.95rem; font-weight: bold; text-transform: uppercase; }
-
-        label { display: block; margin-top: 10px; font-weight: 600; font-size: 0.85rem; color: #475569; }
-        input, select, textarea { width: 100%; padding: 8px; margin-top: 4px; border: 1px solid #CBD5E1; border-radius: 6px; box-sizing: border-box; font-family: inherit; }
-        input:focus, select:focus, textarea:focus { outline: none; border-color: var(--secondary); box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2); }
-
-        button { background: var(--secondary); color: white; border: none; padding: 12px 15px; margin-top: 20px; border-radius: 6px; cursor: pointer; font-weight: bold; width: 100%; transition: all 0.2s; }
-        button:hover { background: #2563EB; }
-        
-        .btn-outline { background: transparent; color: var(--primary); border: 1px solid #CBD5E1; margin-top: 10px; }
-        .btn-outline:hover { background: var(--background); }
-
-        .alphabet-container { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 25px; justify-content: center; max-width: 1400px; margin-left: auto; margin-right: auto; }
-        .letter-tab { padding: 8px 14px; background: var(--card-bg); border: 1px solid #CBD5E1; border-radius: 6px; cursor: pointer; font-weight: 600; color: var(--primary); transition: all 0.2s; }
-        .letter-tab:hover, .letter-tab.active { background: var(--secondary); color: white; border-color: var(--secondary); }
-
-        .companies-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 20px; }
-        .card { background: var(--card-bg); padding: 20px; border-radius: 10px; border-left: 5px solid #94A3B8; box-shadow: 0 2px 4px rgba(0,0,0,0.05); display: flex; flex-direction: column; transition: transform 0.2s; position: relative; }
-        .card:hover { transform: translateY(-2px); }
-        .card h3 { margin: 0 0 10px 0; color: var(--primary); font-size: 1.2rem;}
-        .card p { margin: 4px 0; font-size: 0.9rem; }
-
-        .card.status-prospecto { border-left-color: #94A3B8; }
-        .card.status-presentacion { border-left: 6px solid var(--highlight-border); background-color: var(--highlight-bg); box-shadow: 0 4px 15px rgba(245, 158, 11, 0.2); }
-        .card.status-cierre { border-left: 6px solid var(--success-border); background-color: var(--success-bg); }
-
-        .badge { color: #fff; padding: 4px 10px; border-radius: 20px; font-size: 0.75rem; font-weight: bold; display: inline-block; margin-bottom: 12px; align-self: flex-start; text-transform: uppercase; letter-spacing: 0.5px; }
-        .badge-presentacion { background: var(--highlight-border); }
-        .badge-cierre { background: var(--success-border); color: #064E3B;}
-        .badge-prospecto { background: #64748B; }
-
-        .latest-comment { margin-top: 15px; font-size: 0.85rem; background: rgba(255,255,255,0.6); padding: 10px; border-radius: 6px; color: #475569; flex-grow: 1; border: 1px solid #E2E8F0; }
-
-        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(15, 23, 42, 0.7); justify-content: center; align-items: center; z-index: 1000; backdrop-filter: blur(4px); }
-        .modal-content { background: var(--card-bg); padding: 30px; border-radius: 12px; width: 95%; max-width: 800px; max-height: 90vh; overflow-y: auto; box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1); }
-        .close-modal { float: right; cursor: pointer; font-size: 1.8rem; font-weight: bold; color: #94A3B8; line-height: 1; }
-        .close-modal:hover { color: var(--primary); }
-
-        .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
-        .full-width { grid-column: span 2; }
-
-        .timeline-list { display: flex; flex-direction: column; gap: 15px; max-width: 800px; margin: 0 auto; }
-        .task-card { background: white; padding: 15px 20px; border-radius: 8px; border-left: 5px solid var(--secondary); box-shadow: 0 2px 5px rgba(0,0,0,0.05); display: flex; justify-content: space-between; align-items: center; }
-        .task-date { font-weight: bold; color: var(--secondary); font-size: 1.1rem; }
-        .task-info h4 { margin: 0 0 5px 0; color: var(--primary); }
-        .task-info p { margin: 0; font-size: 0.9rem; color: #64748B; }
-        .task-type { padding: 5px 12px; border-radius: 15px; font-size: 0.8rem; font-weight: bold; background: #E0F2FE; color: #0369A1; }
-
-        .pdf-link { display: inline-block; margin-top: 10px; color: var(--secondary); font-size: 0.85rem; font-weight: bold; text-decoration: none;}
-        .pdf-link:hover { text-decoration: underline; }
-
-        @media (max-width: 900px) {
-            .container { grid-template-columns: 1fr; }
-            .form-grid { grid-template-columns: 1fr; }
-            .full-width { grid-column: span 1; }
-        }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TAIMINGO LAB - CRM</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+:root{
+    --bg:#101214;
+    --bg-2:#171a1d;
+    --panel:#1d2125;
+    --panel-2:#22272b;
+    --border:#30363b;
+    --text:#f2f4f5;
+    --muted:#9aa3aa;
+    --green:#b8ff00;
+    --green-2:#8fd400;
+    --green-soft:rgba(184,255,0,.10);
+    --danger:#ff5f56;
+    --warning:#ffbd2e;
+    --blue:#5aa9ff;
+    --shadow:0 12px 35px rgba(0,0,0,.28);
+}
+*{box-sizing:border-box}
+html,body{margin:0;min-height:100%;font-family:Inter,"Segoe UI",system-ui,-apple-system,sans-serif;background:var(--bg);color:var(--text)}
+body{padding:24px}
+button,input,select,textarea{font:inherit}
+button{cursor:pointer}
+.topbar{max-width:1480px;margin:0 auto 22px;display:flex;align-items:center;justify-content:space-between;gap:16px}
+.brand{font-size:2rem;font-weight:800;letter-spacing:3px;color:var(--green);text-transform:uppercase}
+.brand small{display:block;font-size:.66rem;color:var(--muted);letter-spacing:2px;margin-top:4px;font-weight:600}
+.top-actions{display:flex;gap:10px}
+.action-btn{border:1px solid var(--border);background:var(--panel);color:var(--text);padding:10px 15px;border-radius:9px;font-weight:700}
+.action-btn:hover,.action-btn.active{border-color:var(--green);color:var(--green);background:var(--green-soft)}
+.action-btn.primary{background:var(--green);color:#0c1000;border-color:var(--green)}
+.action-btn.primary:hover{background:var(--green-2);color:#0c1000}
+.home-controls{max-width:1480px;margin:0 auto 26px}
+.alphabet-container{display:flex;flex-wrap:wrap;gap:7px;align-items:center}
+.letter-tab{min-width:38px;height:36px;padding:0 11px;border:1px solid var(--border);border-radius:8px;background:var(--panel);color:var(--muted);font-weight:800;display:inline-flex;align-items:center;justify-content:center;transition:.18s}
+.letter-tab:hover,.letter-tab.active{background:var(--green);border-color:var(--green);color:#0b1000}
+.all-tab{min-width:72px}
+.directory-head{max-width:1480px;margin:0 auto 16px;display:flex;justify-content:space-between;align-items:end;gap:15px}
+.directory-head h2{margin:0;font-size:1.15rem;letter-spacing:.5px}
+.directory-head span{color:var(--green)}
+.directory-count{color:var(--muted);font-size:.85rem}
+.companies-grid{max-width:1480px;margin:0 auto;display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:16px}
+.card{background:linear-gradient(145deg,var(--panel),#171a1d);border:1px solid var(--border);border-left:4px solid #555d63;border-radius:12px;padding:18px;min-height:250px;display:flex;flex-direction:column;box-shadow:0 8px 24px rgba(0,0,0,.18);transition:.2s}
+.card:hover{transform:translateY(-2px);border-color:#454c52}
+.card.status-prospecto{border-left-color:#7f8991}
+.card.status-lead{border-left-color:#5aa9ff}
+.card.status-presentacion{border-left-color:#ffbd2e}
+.card.status-negociacion{border-left-color:#c084fc}
+.card.status-cierre{border-left-color:var(--green)}
+.card h3{margin:5px 0 8px;font-size:1.18rem;color:#fff}
+.card p{margin:4px 0;color:#c0c6ca;font-size:.87rem;line-height:1.45}
+.card strong{color:#eef0f1}
+.badge{align-self:flex-start;padding:5px 9px;border-radius:999px;font-size:.67rem;font-weight:800;letter-spacing:.8px;text-transform:uppercase}
+.badge-prospecto{background:#394047;color:#dbe0e3}
+.badge-lead{background:rgba(90,169,255,.14);color:#80bcff}
+.badge-presentacion{background:rgba(255,189,46,.14);color:#ffd166}
+.badge-negociacion{background:rgba(192,132,252,.14);color:#d9a8ff}
+.badge-cierre{background:var(--green);color:#101400}
+.follow-box{margin-top:11px;padding:9px 10px;background:var(--green-soft);border:1px solid rgba(184,255,0,.18);border-radius:8px;color:#dfff9a;font-size:.8rem}
+.latest-comment{margin-top:12px;padding:10px;background:#15181b;border:1px solid var(--border);border-radius:8px;color:var(--muted);font-size:.78rem;line-height:1.45;flex-grow:1}
+.pdf-link{display:inline-block;margin-top:10px;color:var(--green);font-size:.78rem;font-weight:700;text-decoration:none}
+.pdf-link:hover{text-decoration:underline}
+.btn-outline{margin-top:12px;width:100%;background:transparent;color:var(--text);border:1px solid var(--border);padding:10px;border-radius:8px;font-weight:700}
+.btn-outline:hover{border-color:var(--green);color:var(--green)}
+.view-section{display:none}
+.view-section.active{display:block}
+.calendar-view{max-width:1100px;margin:0 auto}
+.section-heading{margin:0 0 5px;font-size:1.4rem}
+.section-subheading{margin:0 0 22px;color:var(--muted);font-size:.88rem}
+.timeline-list{display:flex;flex-direction:column;gap:10px}
+.task-card{background:var(--panel);border:1px solid var(--border);border-left:4px solid var(--green);border-radius:11px;padding:15px 17px;display:flex;justify-content:space-between;align-items:center;gap:20px;box-shadow:0 6px 18px rgba(0,0,0,.15)}
+.task-info h4{margin:0 0 5px;font-size:1rem}
+.task-info p{margin:0 0 8px;color:var(--muted);font-size:.82rem}
+.task-type{display:inline-block;padding:5px 9px;border-radius:999px;background:var(--green-soft);color:#dfff9a;border:1px solid rgba(184,255,0,.18);font-size:.72rem;font-weight:800}
+.task-date{text-align:right;color:var(--green);font-weight:800;font-size:.95rem;white-space:nowrap}
+.task-date span{color:var(--muted);font-size:.76rem;font-weight:600}
+.empty-state{text-align:center;color:var(--muted);padding:50px 20px;border:1px dashed var(--border);border-radius:12px}
+.modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,.78);backdrop-filter:blur(7px);z-index:1000;align-items:center;justify-content:center;padding:20px}
+.modal-content{background:#181b1f;border:1px solid var(--border);width:95%;max-width:900px;max-height:92vh;overflow:auto;border-radius:14px;box-shadow:var(--shadow);padding:25px}
+.modal-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:18px}
+.modal-header h2{margin:0;color:var(--green);font-size:1.25rem}
+.close-modal{border:0;background:transparent;color:var(--muted);font-size:2rem;line-height:1;padding:0}
+.close-modal:hover{color:#fff}
+.form-section-title{margin:21px 0 10px;padding-top:12px;border-top:1px solid var(--border);color:var(--green);font-size:.72rem;font-weight:900;letter-spacing:1.1px;text-transform:uppercase}
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:13px 15px}
+.full-width{grid-column:1/-1}
+label{display:block;margin:0 0 5px;color:#b9c0c5;font-weight:700;font-size:.76rem}
+input,select,textarea{width:100%;background:#111416;color:#f3f5f6;border:1px solid #343b40;border-radius:8px;padding:10px 11px;outline:none}
+input::placeholder,textarea::placeholder{color:#687179}
+input:focus,select:focus,textarea:focus{border-color:var(--green);box-shadow:0 0 0 3px rgba(184,255,0,.08)}
+select option{background:#171a1d;color:#fff}
+.save-btn{width:100%;margin-top:20px;background:var(--green);color:#0b1000;border:0;border-radius:9px;padding:12px;font-weight:900}
+.save-btn:hover{background:var(--green-2)}
+.save-btn:disabled{opacity:.6;cursor:wait}
+.history{margin-top:25px}
+.history h3{font-size:1rem;margin:0 0 10px}
+.history-list{max-height:220px;overflow:auto;background:#111416;border:1px solid var(--border);padding:13px;border-radius:9px}
+.history-item{border-bottom:1px solid var(--border);padding:9px 0;color:#c8cdd1;font-size:.8rem;line-height:1.5}
+.history-item:last-child{border-bottom:0}
+.history-date{color:var(--green);font-weight:800;font-size:.72rem}
+@media(max-width:800px){
+ body{padding:15px}
+ .topbar{align-items:flex-start;flex-direction:column}
+ .top-actions{width:100%}
+ .action-btn{flex:1}
+ .form-grid{grid-template-columns:1fr}
+ .full-width{grid-column:auto}
+ .task-card{align-items:flex-start;flex-direction:column}
+ .task-date{text-align:left}
+}
+</style>
 </head>
 <body>
 
-    <h1>TAIMINGO IA</h1>
-    <div class="subtitle">SISTEMA INTELIGENTE DE GESTIÓN COMERCIAL (TIEMPO REAL)</div>
-
-    <div class="main-tabs">
-        <button class="main-tab-btn active" onclick="switchView('crm', this)">Directorio CRM</button>
-        <button class="main-tab-btn" onclick="switchView('calendar', this)">Calendario / Seguimientos</button>
+<header class="topbar">
+    <div class="brand">TAIMINGO LAB<small>GESTIÓN COMERCIAL</small></div>
+    <div class="top-actions">
+        <button class="action-btn active" id="btn-directory" onclick="switchView('crm',this)">Empresas</button>
+        <button class="action-btn" id="btn-calendar" onclick="switchView('calendar',this)">Seguimientos</button>
+        <button class="action-btn primary" onclick="openNewCompanyModal()">+ Nueva empresa</button>
     </div>
+</header>
 
-    <!-- VISTA CRM -->
-    <div id="view-crm" class="view-section active">
+<div id="view-crm" class="view-section active">
+    <section class="home-controls">
         <div class="alphabet-container" id="alphabet-tabs"></div>
+    </section>
 
-        <div class="container">
-            <div class="panel">
-                <h2>Registrar Nueva Empresa</h2>
-                <form id="crm-form">
-                    <div class="form-section-title">Datos de Empresa</div>
-                    <label>Nombre de la Empresa</label>
-                    <input type="text" id="company-name" required placeholder="Ej. Corporativo XYZ">
-                    
-                    <label>Ubicación</label>
-                    <input type="text" id="company-location" placeholder="Ciudad / Región">
-                    
-                    <label>Tipo de Empresa</label>
-                    <input type="text" id="company-type" placeholder="Ej. Manufactura, Retail">
-                    
-                    <label>Descripción del Negocio</label>
-                    <textarea id="company-desc" rows="2" placeholder="Giro, productos..."></textarea>
+    <div class="directory-head">
+        <h2>Directorio <span id="current-letter">Todas</span></h2>
+        <div class="directory-count" id="directory-count"></div>
+    </div>
 
-                    <div class="form-section-title">Contacto Principal</div>
-                    <label>Nombre</label>
-                    <input type="text" id="contact1-name" required>
-                    <label>Puesto</label>
-                    <input type="text" id="contact1-role">
-                    <label>Teléfono</label>
-                    <input type="text" id="contact1-phone">
-                    <label>Correo Electrónico</label>
-                    <input type="email" id="contact1-email">
+    <div class="companies-grid" id="companies-list"></div>
+</div>
 
-                    <div class="form-section-title">Segundo Contacto (Opcional)</div>
-                    <label>Nombre</label>
-                    <input type="text" id="contact2-name">
-                    <label>Puesto</label>
-                    <input type="text" id="contact2-role">
-                    <label>Teléfono</label>
-                    <input type="text" id="contact2-phone">
+<div id="view-calendar" class="view-section calendar-view">
+    <h2 class="section-heading">Próximos seguimientos</h2>
+    <p class="section-subheading">Solo se muestran seguimientos cuya fecha todavía no ha pasado.</p>
+    <div class="timeline-list" id="calendar-list"></div>
+</div>
 
-                    <div class="form-section-title">Gestión y Estatus</div>
-                    <label>Estatus Comercial</label>
-                    <select id="status" required>
-                        <option value="Prospecto">Prospecto</option>
-                        <option value="Presentación">Presentación</option>
-                        <option value="Cierre">Cierre</option>
-                    </select>
+<!-- MODAL NUEVA EMPRESA -->
+<div id="new-company-modal" class="modal">
+<div class="modal-content">
+    <div class="modal-header">
+        <h2>Registrar empresa</h2>
+        <button class="close-modal" onclick="closeNewCompanyModal()">&times;</button>
+    </div>
 
-                    <label>Comentarios / Bitácora Inicial</label>
-                    <textarea id="initial-comment" rows="2" placeholder="Anota los primeros detalles..."></textarea>
-
-                    <label>Adjuntar Presentación / Propuesta (PDF)</label>
-                    <input type="file" id="pdf-upload" accept="application/pdf">
-
-                    <div class="form-section-title">Próximo Seguimiento</div>
-                    <label>Fecha</label>
-                    <input type="date" id="follow-date">
-                    <label>Hora</label>
-                    <input type="time" id="follow-time">
-                    <label>Tipo</label>
-                    <select id="follow-type">
-                        <option value="Llamada">Llamada</option>
-                        <option value="Correo">Correo</option>
-                        <option value="Mensaje">Mensaje / WhatsApp</option>
-                        <option value="Reunión Presencial">Reunión Presencial</option>
-                    </select>
-
-                    <button type="submit" id="btn-save">Guardar Registro Integral</button>
-                </form>
+    <form id="crm-form">
+        <div class="form-section-title">Datos de empresa</div>
+        <div class="form-grid">
+            <div>
+                <label>ID de empresa</label>
+                <input type="text" id="company-id" placeholder="Ej. TAI-0001">
             </div>
-
-            <div class="panel" style="background: transparent; box-shadow: none; padding: 0;">
-                <h2 style="margin-bottom: 20px; border: none; padding: 0;">Directorio: <span id="current-letter" style="color: var(--secondary);">Todos</span></h2>
-                <div class="companies-grid" id="companies-list"></div>
+            <div>
+                <label>Nombre de la empresa *</label>
+                <input type="text" id="company-name" required placeholder="Ej. Corporativo XYZ">
+            </div>
+            <div>
+                <label>Ubicación</label>
+                <input type="text" id="company-location" placeholder="Ciudad / Región">
+            </div>
+            <div>
+                <label>Tipo de empresa</label>
+                <input type="text" id="company-type" placeholder="Ej. Manufactura, Retail">
+            </div>
+            <div>
+                <label>Teléfono de empresa</label>
+                <input type="text" id="company-phone" placeholder="55 0000 0000">
+            </div>
+            <div>
+                <label>Segundo teléfono</label>
+                <input type="text" id="company-phone-2" placeholder="55 0000 0000">
+            </div>
+            <div>
+                <label>Extensión</label>
+                <input type="text" id="company-extension" placeholder="Ej. 123">
+            </div>
+            <div class="full-width">
+                <label>Descripción del negocio</label>
+                <textarea id="company-desc" rows="2" placeholder="Giro, productos, necesidades..."></textarea>
             </div>
         </div>
-    </div>
 
-    <!-- VISTA CALENDARIO -->
-    <div id="view-calendar" class="view-section">
-        <h2 style="text-align:center; color: var(--primary);">Próximos Seguimientos</h2>
-        <p style="text-align:center; color: #64748B; margin-bottom: 30px;">Ordenados cronológicamente</p>
-        <div class="timeline-list" id="calendar-list"></div>
-    </div>
-
-    <!-- MODAL EDICIÓN -->
-    <div id="edit-modal" class="modal">
-        <div class="modal-content">
-            <span class="close-modal" onclick="closeModal()">&times;</span>
-            <h2 style="color: var(--primary); margin-top: 0; margin-bottom: 20px;">Ficha Técnica y Negociación</h2>
-            
-            <form id="edit-form">
-                <input type="hidden" id="edit-id">
-                <div class="form-grid">
-                    <div>
-                        <label>Empresa</label>
-                        <input type="text" id="edit-name" required>
-                        <label>Ubicación</label>
-                        <input type="text" id="edit-location">
-                        <label>Tipo</label>
-                        <input type="text" id="edit-type">
-                        
-                        <div class="form-section-title">Contacto 1</div>
-                        <input type="text" id="edit-c1-name" placeholder="Nombre">
-                        <input type="text" id="edit-c1-role" placeholder="Puesto">
-                        <input type="text" id="edit-c1-phone" placeholder="Teléfono">
-                        <input type="text" id="edit-c1-email" placeholder="Correo">
-                    </div>
-
-                    <div>
-                        <label>Estatus Comercial</label>
-                        <select id="edit-status">
-                            <option value="Prospecto">Prospecto</option>
-                            <option value="Presentación">Presentación</option>
-                            <option value="Cierre">Cierre</option>
-                        </select>
-                        <label>Descripción</label>
-                        <textarea id="edit-desc" rows="3"></textarea>
-
-                        <div class="form-section-title">Contacto 2</div>
-                        <input type="text" id="edit-c2-name" placeholder="Nombre">
-                        <input type="text" id="edit-c2-role" placeholder="Puesto">
-                        <input type="text" id="edit-c2-phone" placeholder="Teléfono">
-                    </div>
-
-                    <div class="full-width" style="border-top: 1px dashed #CBD5E1; margin-top: 10px; padding-top: 10px;">
-                        <div class="form-section-title">Próximo Seguimiento</div>
-                        <div style="display:flex; gap:10px;">
-                            <input type="date" id="edit-f-date">
-                            <input type="time" id="edit-f-time">
-                            <select id="edit-f-type">
-                                <option value="Llamada">Llamada</option>
-                                <option value="Correo">Correo</option>
-                                <option value="Mensaje">Mensaje</option>
-                                <option value="Reunión Presencial">Reunión Presencial</option>
-                            </select>
-                        </div>
-                    </div>
-                    
-                    <div class="full-width">
-                        <label>Adjuntar Nuevo PDF</label>
-                        <input type="file" id="edit-pdf" accept="application/pdf">
-                        <div id="current-pdf-link"></div>
-                    </div>
-
-                    <div class="full-width" style="margin-top: 15px; border-top: 2px dashed #CBD5E1; padding-top: 15px;">
-                        <label style="color: var(--secondary);">+ Agregar Nueva Actualización a Bitácora</label>
-                        <textarea id="new-update" rows="3" placeholder="Avances, minutas, acuerdos..."></textarea>
-                    </div>
-                </div>
-
-                <button type="button" onclick="saveEdits()">Guardar Cambios Integrales</button>
-            </form>
-
-            <h3 style="margin-top: 30px; font-size: 1.1rem; color: var(--primary);">Historial de Actualizaciones</h3>
-            <div id="modal-comments-list" style="max-height:200px; overflow-y:auto; background:var(--background); padding:15px; border-radius:8px;"></div>
+        <div class="form-section-title">Contacto principal</div>
+        <div class="form-grid">
+            <div><label>Nombre *</label><input type="text" id="contact1-name" required></div>
+            <div><label>Puesto</label><input type="text" id="contact1-role"></div>
+            <div><label>Teléfono</label><input type="text" id="contact1-phone"></div>
+            <div><label>Correo electrónico</label><input type="email" id="contact1-email"></div>
         </div>
+
+        <div class="form-section-title">Segundo contacto</div>
+        <div class="form-grid">
+            <div><label>Nombre</label><input type="text" id="contact2-name"></div>
+            <div><label>Puesto</label><input type="text" id="contact2-role"></div>
+            <div><label>Teléfono</label><input type="text" id="contact2-phone"></div>
+            <div><label>Correo electrónico</label><input type="email" id="contact2-email"></div>
+        </div>
+
+        <div class="form-section-title">Gestión y estatus</div>
+        <div class="form-grid">
+            <div>
+                <label>Estatus comercial</label>
+                <select id="status" required>
+                    <option value="Prospecto">Prospecto</option>
+                    <option value="Lead">Lead</option>
+                    <option value="Presentación">Presentación</option>
+                    <option value="Negociación">Negociación</option>
+                    <option value="Cierre">Cierre</option>
+                </select>
+            </div>
+            <div>
+                <label>Adjuntar presentación / propuesta (PDF)</label>
+                <input type="file" id="pdf-upload" accept="application/pdf">
+            </div>
+            <div class="full-width">
+                <label>Comentarios / bitácora inicial</label>
+                <textarea id="initial-comment" rows="2" placeholder="Anota los primeros detalles..."></textarea>
+            </div>
+        </div>
+
+        <div class="form-section-title">Próximo seguimiento</div>
+        <div class="form-grid">
+            <div><label>Fecha</label><input type="date" id="follow-date"></div>
+            <div><label>Hora</label><input type="time" id="follow-time"></div>
+            <div class="full-width">
+                <label>Tipo</label>
+                <select id="follow-type">
+                    <option value="Llamada">Llamada</option>
+                    <option value="Correo">Correo</option>
+                    <option value="WhatsApp">WhatsApp</option>
+                    <option value="Reunión presencial">Reunión presencial</option>
+                    <option value="Reunión virtual">Reunión virtual</option>
+                    <option value="Inicio de proyecto">Inicio de proyecto</option>
+                </select>
+            </div>
+        </div>
+
+        <button class="save-btn" type="submit" id="btn-save">Guardar registro</button>
+    </form>
+</div>
+</div>
+
+<!-- MODAL EDICIÓN -->
+<div id="edit-modal" class="modal">
+<div class="modal-content">
+    <div class="modal-header">
+        <h2>Ficha de empresa</h2>
+        <button class="close-modal" onclick="closeModal()">&times;</button>
     </div>
 
-    <script>
-        const SUPABASE_URL = 'https://mzocynrosmrgsbjyvlze.supabase.co';
-        const SUPABASE_KEY = 'sb_publishable_c3IbBBR88bmU77qK76aYlQ_GLGm2hY4';
-        
-        const db = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+    <form id="edit-form">
+        <input type="hidden" id="edit-id">
 
-        let companies = [];
-        let currentFilter = 'Todos';
+        <div class="form-section-title">Datos de empresa</div>
+        <div class="form-grid">
+            <div><label>ID de empresa</label><input type="text" id="edit-company-id"></div>
+            <div><label>Empresa *</label><input type="text" id="edit-name" required></div>
+            <div><label>Ubicación</label><input type="text" id="edit-location"></div>
+            <div><label>Tipo</label><input type="text" id="edit-type"></div>
+            <div><label>Teléfono de empresa</label><input type="text" id="edit-company-phone"></div>
+            <div><label>Segundo teléfono</label><input type="text" id="edit-company-phone-2"></div>
+            <div><label>Extensión</label><input type="text" id="edit-company-extension"></div>
+            <div><label>Estatus comercial</label>
+                <select id="edit-status">
+                    <option value="Prospecto">Prospecto</option>
+                    <option value="Lead">Lead</option>
+                    <option value="Presentación">Presentación</option>
+                    <option value="Negociación">Negociación</option>
+                    <option value="Cierre">Cierre</option>
+                </select>
+            </div>
+            <div class="full-width"><label>Descripción</label><textarea id="edit-desc" rows="3"></textarea></div>
+        </div>
 
-        document.addEventListener("DOMContentLoaded", function() {
-            buildAlphabet();
-            loadCompanies();
-            setupRealtime();
+        <div class="form-section-title">Contacto principal</div>
+        <div class="form-grid">
+            <div><label>Nombre</label><input type="text" id="edit-c1-name"></div>
+            <div><label>Puesto</label><input type="text" id="edit-c1-role"></div>
+            <div><label>Teléfono</label><input type="text" id="edit-c1-phone"></div>
+            <div><label>Correo</label><input type="email" id="edit-c1-email"></div>
+        </div>
+
+        <div class="form-section-title">Segundo contacto</div>
+        <div class="form-grid">
+            <div><label>Nombre</label><input type="text" id="edit-c2-name"></div>
+            <div><label>Puesto</label><input type="text" id="edit-c2-role"></div>
+            <div><label>Teléfono</label><input type="text" id="edit-c2-phone"></div>
+            <div><label>Correo</label><input type="email" id="edit-c2-email"></div>
+        </div>
+
+        <div class="form-section-title">Próximo seguimiento</div>
+        <div class="form-grid">
+            <div><label>Fecha</label><input type="date" id="edit-f-date"></div>
+            <div><label>Hora</label><input type="time" id="edit-f-time"></div>
+            <div class="full-width">
+                <label>Tipo</label>
+                <select id="edit-f-type">
+                    <option value="Llamada">Llamada</option>
+                    <option value="Correo">Correo</option>
+                    <option value="WhatsApp">WhatsApp</option>
+                    <option value="Reunión presencial">Reunión presencial</option>
+                    <option value="Reunión virtual">Reunión virtual</option>
+                    <option value="Inicio de proyecto">Inicio de proyecto</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="form-section-title">Documentación</div>
+        <label>Adjuntar nuevo PDF</label>
+        <input type="file" id="edit-pdf" accept="application/pdf">
+        <div id="current-pdf-link"></div>
+
+        <div class="form-section-title">Nueva actualización</div>
+        <textarea id="new-update" rows="3" placeholder="Avances, minutas, acuerdos..."></textarea>
+
+        <button class="save-btn" type="button" onclick="saveEdits()">Guardar cambios</button>
+    </form>
+
+    <div class="history">
+        <h3>Historial de actualizaciones</h3>
+        <div id="modal-comments-list" class="history-list"></div>
+    </div>
+</div>
+</div>
+
+<script>
+const SUPABASE_URL = 'https://mzocynrosmrgsbjyvlze.supabase.co';
+const SUPABASE_KEY = 'sb_publishable_c3IbBBR88bmU77qK76aYlQ_GLGm2hY4';
+const db = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+let companies = [];
+let currentFilter = 'Todos';
+
+const STATUS_OPTIONS = ['Prospecto','Lead','Presentación','Negociación','Cierre'];
+
+document.addEventListener('DOMContentLoaded', () => {
+    buildAlphabet();
+    loadCompanies();
+    setupRealtime();
+    setMinFollowDates();
+});
+
+function setupRealtime(){
+    db.channel('public:empresas')
+      .on('postgres_changes',{event:'*',schema:'public',table:'empresas'},()=>loadCompanies())
+      .subscribe();
+}
+
+async function loadCompanies(){
+    const {data,error} = await db.from('empresas').select('*');
+    if(error){ console.error('Error al cargar empresas:',error); return; }
+    companies = data || [];
+    renderCompanies();
+    renderCalendar();
+}
+
+function switchView(viewId,btn){
+    document.querySelectorAll('.view-section').forEach(el=>el.classList.remove('active'));
+    document.querySelectorAll('.top-actions .action-btn').forEach(el=>el.classList.remove('active'));
+    document.getElementById('view-'+viewId).classList.add('active');
+    if(btn) btn.classList.add('active');
+    if(viewId==='calendar') renderCalendar();
+}
+
+function buildAlphabet(){
+    const container=document.getElementById('alphabet-tabs');
+    container.innerHTML='<div class="letter-tab all-tab active" onclick="filterData(\'Todos\',this)">Todas</div>';
+    'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('').forEach(letter=>{
+        container.innerHTML += `<div class="letter-tab" onclick="filterData('${letter}',this)">${letter}</div>`;
+    });
+}
+
+function filterData(letter,btn){
+    currentFilter=letter;
+    document.querySelectorAll('.letter-tab').forEach(el=>el.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById('current-letter').textContent=letter;
+    renderCompanies();
+}
+
+function statusClasses(status){
+    const key=(status||'Prospecto').toLowerCase();
+    return {
+        statusClass:'status-'+(key.normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/\s+/g,'-')),
+        badgeClass:'badge-'+(key.normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/\s+/g,'-'))
+    };
+}
+
+function renderCompanies(){
+    const list=document.getElementById('companies-list');
+    list.innerHTML='';
+    let filtered=companies.slice();
+
+    if(currentFilter!=='Todos'){
+        filtered=filtered.filter(c=>c.name && c.name.toUpperCase().startsWith(currentFilter));
+    }
+
+    filtered.sort((a,b)=>(a.name||'').localeCompare(b.name||'','es',{sensitivity:'base'}));
+    document.getElementById('directory-count').textContent=`${filtered.length} empresa${filtered.length===1?'':'s'}`;
+
+    if(!filtered.length){
+        list.innerHTML='<div class="empty-state">No hay empresas registradas en este filtro.</div>';
+        return;
+    }
+
+    filtered.forEach(c=>{
+        const {statusClass,badgeClass}=statusClasses(c.status);
+        let latestCommentHTML='';
+        if(Array.isArray(c.comments) && c.comments.length){
+            const last=c.comments[c.comments.length-1];
+            latestCommentHTML=`<div class="latest-comment"><strong>Última actualización · ${escapeHTML(last.date||'')}</strong><br>${escapeHTML(last.text||'')}</div>`;
+        }
+
+        let followHTML='';
+        if(c.follow_date && isFollowUpFuture(c.follow_date,c.follow_time)){
+            followHTML=`<div class="follow-box">Próximo: ${formatDate(c.follow_date)}${c.follow_time?' · '+c.follow_time:''}<br>${escapeHTML(c.follow_type||'Seguimiento')}</div>`;
+        }
+
+        const pdfHTML=c.pdf_url?`<a href="${escapeAttr(c.pdf_url)}" target="_blank" class="pdf-link">📄 Ver / descargar PDF</a>`:'';
+        const companyPhone=[c.company_phone,c.company_phone_2].filter(Boolean).join(' / ');
+        const card=document.createElement('div');
+        card.className=`card ${statusClass}`;
+        card.innerHTML=`
+            <span class="badge ${badgeClass}">${escapeHTML(c.status||'Prospecto')}</span>
+            <h3>${escapeHTML(c.name||'Sin nombre')}</h3>
+            <p><strong>ID:</strong> ${escapeHTML(c.empresa_id||'Sin asignar')}</p>
+            <p><strong>Ubicación:</strong> ${escapeHTML(c.location||'N/A')}</p>
+            <p><strong>Contacto:</strong> ${escapeHTML(c.c1_name||'N/A')}${c.c1_role?' · '+escapeHTML(c.c1_role):''}</p>
+            <p><strong>Empresa:</strong> ${escapeHTML(companyPhone||'Sin teléfono')}${c.company_extension?' · Ext. '+escapeHTML(c.company_extension):''}</p>
+            <p><strong>Contacto:</strong> ${escapeHTML(c.c1_phone||'Sin teléfono')} · ${escapeHTML(c.c1_email||'Sin correo')}</p>
+            ${followHTML}${pdfHTML}${latestCommentHTML}
+            <button class="btn-outline" onclick="openModal('${escapeAttr(String(c.id))}')">Abrir ficha completa</button>
+        `;
+        list.appendChild(card);
+    });
+}
+
+function renderCalendar(){
+    const list=document.getElementById('calendar-list');
+    list.innerHTML='';
+    const tasks=companies
+        .filter(c=>c.follow_date && isFollowUpFuture(c.follow_date,c.follow_time))
+        .sort((a,b)=>new Date(a.follow_date+'T'+(a.follow_time||'23:59'))-new Date(b.follow_date+'T'+(b.follow_time||'23:59')));
+
+    if(!tasks.length){
+        list.innerHTML='<div class="empty-state">No hay próximos seguimientos programados.</div>';
+        return;
+    }
+
+    tasks.forEach(t=>{
+        const item=document.createElement('div');
+        item.className='task-card';
+        item.innerHTML=`
+            <div class="task-info">
+                <h4>${escapeHTML(t.name||'Sin nombre')}</h4>
+                <p>Contacto: ${escapeHTML(t.c1_name||'N/A')} · ${escapeHTML(t.c1_phone||'Sin teléfono')}</p>
+                <span class="task-type">${escapeHTML(t.follow_type||'Seguimiento')}</span>
+            </div>
+            <div class="task-date">${formatDate(t.follow_date)}<br><span>${escapeHTML(t.follow_time||'Sin hora')}</span></div>
+        `;
+        item.addEventListener('click',()=>openModal(t.id));
+        item.style.cursor='pointer';
+        list.appendChild(item);
+    });
+}
+
+function isFollowUpFuture(date,time){
+    if(!date) return false;
+    const today=getLocalDateString();
+    if(date>today) return true;
+    if(date<today) return false;
+    if(!time) return true;
+    const now=new Date();
+    const follow=new Date(`${date}T${time}`);
+    return follow>=now;
+}
+
+function getLocalDateString(){
+    const d=new Date();
+    const y=d.getFullYear();
+    const m=String(d.getMonth()+1).padStart(2,'0');
+    const day=String(d.getDate()).padStart(2,'0');
+    return `${y}-${m}-${day}`;
+}
+
+function setMinFollowDates(){
+    const today=getLocalDateString();
+    ['follow-date','edit-f-date'].forEach(id=>{
+        const el=document.getElementById(id);
+        if(el) el.min=today;
+    });
+}
+
+function formatDate(dateString){
+    if(!dateString) return '';
+    const [y,m,d]=dateString.split('-');
+    return `${d}/${m}/${y}`;
+}
+
+function getFormattedDate(){
+    const d=new Date();
+    return d.toLocaleDateString('es-MX',{year:'numeric',month:'2-digit',day:'2-digit'});
+}
+
+function generateCompanyId(){
+    const nums=companies.map(c=>{
+        const match=String(c.empresa_id||'').match(/^TAI-(\d+)$/i);
+        return match?parseInt(match[1],10):0;
+    });
+    const next=(Math.max(0,...nums)+1).toString().padStart(4,'0');
+    return `TAI-${next}`;
+}
+
+function openNewCompanyModal(){
+    document.getElementById('crm-form').reset();
+    document.getElementById('company-id').value=generateCompanyId();
+    document.getElementById('status').value='Prospecto';
+    document.getElementById('follow-type').value='Llamada';
+    document.getElementById('new-company-modal').style.display='flex';
+}
+
+function closeNewCompanyModal(){
+    document.getElementById('new-company-modal').style.display='none';
+}
+
+async function uploadPDF(file){
+    const safeName=file.name.replace(/[^\w.\-]+/g,'_');
+    const fileName=Date.now()+'_'+safeName;
+    const res=await db.storage.from('archivos_crm').upload(fileName,file);
+    if(res.error){ console.error('Error al subir archivo:',res.error); return null; }
+    const publicUrlData=db.storage.from('archivos_crm').getPublicUrl(fileName).data;
+    return {url:publicUrlData.publicUrl,name:file.name};
+}
+
+document.getElementById('crm-form').addEventListener('submit',async function(e){
+    e.preventDefault();
+    const btn=document.getElementById('btn-save');
+    btn.disabled=true;
+    btn.textContent='Guardando...';
+
+    try{
+        const commentText=document.getElementById('initial-comment').value.trim();
+        const initialComments=commentText?[{date:getFormattedDate(),text:commentText}]:[];
+        let pdf_url=null,pdf_name=null;
+        const fileInput=document.getElementById('pdf-upload');
+
+        if(fileInput.files.length){
+            const uploaded=await uploadPDF(fileInput.files[0]);
+            if(uploaded){pdf_url=uploaded.url;pdf_name=uploaded.name;}
+        }
+
+        const record={
+            empresa_id:document.getElementById('company-id').value.trim() || generateCompanyId(),
+            name:document.getElementById('company-name').value.trim(),
+            location:document.getElementById('company-location').value.trim(),
+            type:document.getElementById('company-type').value.trim(),
+            company_phone:document.getElementById('company-phone').value.trim(),
+            company_phone_2:document.getElementById('company-phone-2').value.trim(),
+            company_extension:document.getElementById('company-extension').value.trim(),
+            desc:document.getElementById('company-desc').value.trim(),
+            c1_name:document.getElementById('contact1-name').value.trim(),
+            c1_role:document.getElementById('contact1-role').value.trim(),
+            c1_phone:document.getElementById('contact1-phone').value.trim(),
+            c1_email:document.getElementById('contact1-email').value.trim(),
+            c2_name:document.getElementById('contact2-name').value.trim(),
+            c2_role:document.getElementById('contact2-role').value.trim(),
+            c2_phone:document.getElementById('contact2-phone').value.trim(),
+            c2_email:document.getElementById('contact2-email').value.trim(),
+            status:document.getElementById('status').value,
+            follow_date:document.getElementById('follow-date').value || null,
+            follow_time:document.getElementById('follow-time').value || null,
+            follow_type:document.getElementById('follow-type').value,
+            pdf_url,pdf_name,comments:initialComments
+        };
+
+        const {error}=await db.from('empresas').insert([record]);
+        if(error) throw error;
+
+        closeNewCompanyModal();
+        this.reset();
+        await loadCompanies();
+    }catch(error){
+        alert('Error al guardar: '+error.message);
+    }finally{
+        btn.disabled=false;
+        btn.textContent='Guardar registro';
+    }
+});
+
+function openModal(id){
+    const c=companies.find(comp=>String(comp.id)===String(id));
+    if(!c) return;
+
+    document.getElementById('edit-id').value=c.id;
+    document.getElementById('edit-company-id').value=c.empresa_id||'';
+    document.getElementById('edit-name').value=c.name||'';
+    document.getElementById('edit-location').value=c.location||'';
+    document.getElementById('edit-type').value=c.type||'';
+    document.getElementById('edit-company-phone').value=c.company_phone||'';
+    document.getElementById('edit-company-phone-2').value=c.company_phone_2||'';
+    document.getElementById('edit-company-extension').value=c.company_extension||'';
+    document.getElementById('edit-desc').value=c.desc||'';
+    document.getElementById('edit-c1-name').value=c.c1_name||'';
+    document.getElementById('edit-c1-role').value=c.c1_role||'';
+    document.getElementById('edit-c1-phone').value=c.c1_phone||'';
+    document.getElementById('edit-c1-email').value=c.c1_email||'';
+    document.getElementById('edit-c2-name').value=c.c2_name||'';
+    document.getElementById('edit-c2-role').value=c.c2_role||'';
+    document.getElementById('edit-c2-phone').value=c.c2_phone||'';
+    document.getElementById('edit-c2-email').value=c.c2_email||'';
+    document.getElementById('edit-status').value=c.status||'Prospecto';
+    document.getElementById('edit-f-date').value=c.follow_date||'';
+    document.getElementById('edit-f-time').value=c.follow_time||'';
+    document.getElementById('edit-f-type').value=c.follow_type||'Llamada';
+    document.getElementById('new-update').value='';
+    document.getElementById('edit-pdf').value='';
+
+    const pdf=document.getElementById('current-pdf-link');
+    pdf.innerHTML=c.pdf_url
+        ? `<a href="${escapeAttr(c.pdf_url)}" target="_blank" class="pdf-link">Archivo actual: ${escapeHTML(c.pdf_name||'Ver PDF')}</a>`
+        : '<span style="color:#687179;font-size:.78rem">Sin documento adjunto</span>';
+
+    const history=document.getElementById('modal-comments-list');
+    history.innerHTML='';
+    if(Array.isArray(c.comments)&&c.comments.length){
+        [...c.comments].reverse().forEach(comment=>{
+            const item=document.createElement('div');
+            item.className='history-item';
+            item.innerHTML=`<div class="history-date">${escapeHTML(comment.date||'')}</div>${escapeHTML(comment.text||'')}`;
+            history.appendChild(item);
         });
+    }else{
+        history.innerHTML='<span style="color:#687179">Sin actualizaciones registradas.</span>';
+    }
 
-        function setupRealtime() {
-            db.channel('public:empresas')
-                .on('postgres_changes', { event: '*', schema: 'public', table: 'empresas' }, function() {
-                    loadCompanies();
-                })
-                .subscribe();
+    document.getElementById('edit-modal').style.display='flex';
+}
+
+function closeModal(){document.getElementById('edit-modal').style.display='none'}
+
+async function saveEdits(){
+    const id=document.getElementById('edit-id').value;
+    const c=companies.find(comp=>String(comp.id)===String(id));
+    if(!c) return;
+
+    let pdf_url=c.pdf_url||null;
+    let pdf_name=c.pdf_name||null;
+    const fileInput=document.getElementById('edit-pdf');
+
+    try{
+        if(fileInput.files.length){
+            const uploaded=await uploadPDF(fileInput.files[0]);
+            if(uploaded){pdf_url=uploaded.url;pdf_name=uploaded.name;}
         }
 
-        async function loadCompanies() {
-            const result = await db.from('empresas').select('*');
-            if (result.error) {
-                console.error("Error al cargar empresas:", result.error);
-                return;
-            }
-            companies = result.data || [];
-            renderCompanies();
-            renderCalendar();
-        }
+        const updatedComments=Array.isArray(c.comments)?[...c.comments]:[];
+        const newUpdateText=document.getElementById('new-update').value.trim();
+        if(newUpdateText) updatedComments.push({date:getFormattedDate(),text:newUpdateText});
 
-        function switchView(viewId, btn) {
-            document.querySelectorAll('.view-section').forEach(function(el) { el.classList.remove('active'); });
-            document.querySelectorAll('.main-tab-btn').forEach(function(el) { el.classList.remove('active'); });
-            document.getElementById('view-' + viewId).classList.add('active');
-            btn.classList.add('active');
-            if(viewId === 'calendar') renderCalendar();
-        }
+        const updates={
+            empresa_id:document.getElementById('edit-company-id').value.trim(),
+            name:document.getElementById('edit-name').value.trim(),
+            location:document.getElementById('edit-location').value.trim(),
+            type:document.getElementById('edit-type').value.trim(),
+            company_phone:document.getElementById('edit-company-phone').value.trim(),
+            company_phone_2:document.getElementById('edit-company-phone-2').value.trim(),
+            company_extension:document.getElementById('edit-company-extension').value.trim(),
+            desc:document.getElementById('edit-desc').value.trim(),
+            c1_name:document.getElementById('edit-c1-name').value.trim(),
+            c1_role:document.getElementById('edit-c1-role').value.trim(),
+            c1_phone:document.getElementById('edit-c1-phone').value.trim(),
+            c1_email:document.getElementById('edit-c1-email').value.trim(),
+            c2_name:document.getElementById('edit-c2-name').value.trim(),
+            c2_role:document.getElementById('edit-c2-role').value.trim(),
+            c2_phone:document.getElementById('edit-c2-phone').value.trim(),
+            c2_email:document.getElementById('edit-c2-email').value.trim(),
+            status:document.getElementById('edit-status').value,
+            follow_date:document.getElementById('edit-f-date').value || null,
+            follow_time:document.getElementById('edit-f-time').value || null,
+            follow_type:document.getElementById('edit-f-type').value,
+            pdf_url,pdf_name,comments:updatedComments
+        };
 
-        function buildAlphabet() {
-            const container = document.getElementById('alphabet-tabs');
-            container.innerHTML = '<div class="letter-tab active" onclick="filterData(\'Todos\', this)">Todos</div>';
-            "ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("").forEach(function(letter) {
-                container.innerHTML += '<div class="letter-tab" onclick="filterData(\'' + letter + '\', this)">' + letter + '</div>';
-            });
-        }
+        const {error}=await db.from('empresas').update(updates).eq('id',id);
+        if(error) throw error;
 
-        function filterData(letter, btnElement) {
-            currentFilter = letter;
-            document.querySelectorAll('.letter-tab').forEach(function(btn) { btn.classList.remove('active'); });
-            btnElement.classList.add('active');
-            document.getElementById('current-letter').textContent = letter;
-            renderCompanies();
-        }
+        closeModal();
+        await loadCompanies();
+    }catch(error){
+        alert('Error al guardar cambios: '+error.message);
+    }
+}
 
-        function renderCompanies() {
-            const list = document.getElementById('companies-list');
-            list.innerHTML = '';
+function escapeHTML(value){
+    return String(value??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m]));
+}
+function escapeAttr(value){return escapeHTML(value).replace(/`/g,'&#096;')}
 
-            let filtered = companies;
-            if (currentFilter !== 'Todos') {
-                filtered = companies.filter(function(c) {
-                    return c.name && c.name.toUpperCase().startsWith(currentFilter);
-                });
-            }
-            
-            filtered.sort(function(a, b) {
-                return (a.name || '').localeCompare(b.name || '', 'es', { sensitivity: 'base' });
-            });
-
-            if (filtered.length === 0) {
-                list.innerHTML = '<p style="color:#94A3B8;">No hay empresas registradas.</p>';
-                return;
-            }
-
-            filtered.forEach(function(c) {
-                let statusClass = 'status-prospecto';
-                let badgeClass = 'badge-prospecto';
-                if (c.status === 'Presentación') {
-                    statusClass = 'status-presentacion';
-                    badgeClass = 'badge-presentacion';
-                } else if (c.status === 'Cierre') {
-                    statusClass = 'status-cierre';
-                    badgeClass = 'badge-cierre';
-                }
-
-                let latestCommentHTML = '';
-                if (c.comments && Array.isArray(c.comments) && c.comments.length > 0) {
-                    const last = c.comments[c.comments.length - 1];
-                    latestCommentHTML = '<div class="latest-comment"><strong>Última act. (' + (last.date || '') + '):</strong><br>' + (last.text || '') + '</div>';
-                }
-
-                let pdfHTML = c.pdf_url ? '<a href="' + c.pdf_url + '" target="_blank" class="pdf-link">📄 Ver / Descargar PDF</a>' : '';
-
-                let followHTML = '';
-                if (c.follow_date) {
-                    followHTML = '<p style="color:var(--secondary); font-weight:bold; margin-top:8px;">Próx: ' + c.follow_date + ' ' + (c.follow_time || '') + ' (' + (c.follow_type || 'Seguimiento') + ')</p>';
-                }
-
-                const cardHTML = 
-                    '<div class="card ' + statusClass + '">' +
-                        '<div class="badge ' + badgeClass + '">' + (c.status || 'Prospecto') + '</div>' +
-                        '<h3>' + (c.name || '') + '</h3>' +
-                        '<p><strong>Ubicación:</strong> ' + (c.location || 'N/A') + '</p>' +
-                        '<p><strong>Contacto:</strong> ' + (c.c1_name || 'N/A') + (c.c1_role ? ' - ' + c.c1_role : '') + '</p>' +
-                        '<p><strong>Tel/Mail:</strong> ' + (c.c1_phone || '') + ' | ' + (c.c1_email || '') + '</p>' +
-                        followHTML +
-                        pdfHTML +
-                        latestCommentHTML +
-                        '<button class="btn-outline" onclick="openModal(\'' + c.id + '\')">Abrir Ficha Completa</button>' +
-                    '</div>';
-
-                list.innerHTML += cardHTML;
-            });
-        }
-
-        function renderCalendar() {
-            const list = document.getElementById('calendar-list');
-            list.innerHTML = '';
-
-            const tasks = companies.filter(function(c) { return c.follow_date; }).sort(function(a, b) {
-                return new Date(a.follow_date + 'T' + (a.follow_time || '00:00')) - new Date(b.follow_date + 'T' + (b.follow_time || '00:00'));
-            });
-
-            if (tasks.length === 0) {
-                list.innerHTML = '<p style="text-align:center;">No hay seguimientos programados.</p>';
-                return;
-            }
-
-            tasks.forEach(function(t) {
-                const itemHTML = 
-                    '<div class="task-card">' +
-                        '<div class="task-info">' +
-                            '<h4>' + (t.name || '') + '</h4>' +
-                            '<p>Contacto: ' + (t.c1_name || 'N/A') + ' (' + (t.c1_phone || 'Sin tel') + ')</p>' +
-                            '<span class="task-type">' + (t.follow_type || 'Seguimiento') + '</span>' +
-                        '</div>' +
-                        '<div class="task-date">' +
-                            (t.follow_date || '') + ' <br> <span style="font-size:0.9rem; color:#64748B;">' + (t.follow_time || '') + '</span>' +
-                        '</div>' +
-                    '</div>';
-                list.innerHTML += itemHTML;
-            });
-        }
-
-        async function uploadPDF(file) {
-            const fileName = Date.now() + '_' + file.name;
-            const res = await db.storage.from('archivos_crm').upload(fileName, file);
-            if (res.error) {
-                console.error("Error al subir archivo:", res.error);
-                return null;
-            }
-            const publicUrlData = db.storage.from('archivos_crm').getPublicUrl(fileName).data;
-            return { url: publicUrlData.publicUrl, name: file.name };
-        }
-
-        document.getElementById('crm-form').addEventListener('submit', async function(e) {
-            e.preventDefault();
-            const btn = document.getElementById('btn-save');
-            btn.disabled = true;
-            btn.textContent = 'Guardando en la nube...';
-
-            const commentText = document.getElementById('initial-comment').value.trim();
-            const initialComments = commentText ? [{ date: getFormattedDate(), text: commentText }] : [];
-
-            let pdf_url = null;
-            let pdf_name = null;
-            const fileInput = document.getElementById('pdf-upload');
-            if (fileInput.files.length > 0) {
-                const uploaded = await uploadPDF(fileInput.files[0]);
-                if (uploaded) {
-                    pdf_url = uploaded.url;
-                    pdf_name = uploaded.name;
-                }
-            }
-
-            const record = {
-                name: document.getElementById('company-name').value.trim(),
-                location: document.getElementById('company-location').value.trim(),
-                type: document.getElementById('company-type').value.trim(),
-                desc: document.getElementById('company-desc').value.trim(),
-                c1_name: document.getElementById('contact1-name').value.trim(),
-                c1_role: document.getElementById('contact1-role').value.trim(),
-                c1_phone: document.getElementById('contact1-phone').value.trim(),
-                c1_email: document.getElementById('contact1-email').value.trim(),
-                c2_name: document.getElementById('contact2-name').value.trim(),
-                c2_role: document.getElementById('contact2-role').value.trim(),
-                c2_phone: document.getElementById('contact2-phone').value.trim(),
-                status: document.getElementById('status').value,
-                follow_date: document.getElementById('follow-date').value,
-                follow_time: document.getElementById('follow-time').value,
-                follow_type: document.getElementById('follow-type').value,
-                pdf_url: pdf_url,
-                pdf_name: pdf_name,
-                comments: initialComments
-            };
-
-            const res = await db.from('empresas').insert([record]);
-            btn.disabled = false;
-            btn.textContent = 'Guardar Registro Integral';
-
-            if (res.error) {
-                alert("Error al guardar: " + res.error.message);
-            } else {
-                this.reset();
-                loadCompanies();
-            }
-        });
-
-        function openModal(id) {
-            const c = companies.find(function(comp) { return String(comp.id) === String(id); });
-            if (!c) return;
-
-            document.getElementById('edit-id').value = c.id;
-            document.getElementById('edit-name').value = c.name || '';
-            document.getElementById('edit-location').value = c.location || '';
-            document.getElementById('edit-type').value = c.type || '';
-            document.getElementById('edit-desc').value = c.desc || '';
-            
-            document.getElementById('edit-c1-name').value = c.c1_name || '';
-            document.getElementById('edit-c1-role').value = c.c1_role || '';
-            document.getElementById('edit-c1-phone').value = c.c1_phone || '';
-            document.getElementById('edit-c1-email').value = c.c1_email || '';
-            
-            document.getElementById('edit-c2-name').value = c.c2_name || '';
-            document.getElementById('edit-c2-role').value = c.c2_role || '';
-            document.getElementById('edit-c2-phone').value = c.c2_phone || '';
-            
-            document.getElementById('edit-status').value = c.status || 'Prospecto';
-            
-            document.getElementById('edit-f-date').value = c.follow_date || '';
-            document.getElementById('edit-f-time').value = c.follow_time || '';
-            document.getElementById('edit-f-type').value = c.follow_type || 'Llamada';
-            
-            document.getElementById('new-update').value = ''; 
-
-            const pdfLinkContainer = document.getElementById('current-pdf-link');
-            if(c.pdf_url) {
-                pdfLinkContainer.innerHTML = '<a href="' + c.pdf_url + '" target="_blank" class="pdf-link">Archivo actual: ' + (c.pdf_name || 'Ver PDF') + '</a>';
-            } else {
-                pdfLinkContainer.innerHTML = '<span style="font-size:0.8rem; color:#94A3B8;">Sin documento adjunto</span>';
-            }
-
-            const historyContainer = document.getElementById('modal-comments-list');
-            historyContainer.innerHTML = '';
-            if (c.comments && Array.isArray(c.comments) && c.comments.length > 0) {
-                [...c.comments].reverse().forEach(function(comment) {
-                    historyContainer.innerHTML += 
-                        '<div style="border-bottom:1px solid #CBD5E1; padding-bottom:8px; margin-bottom:8px;">' +
-                            '<strong style="color:var(--secondary); font-size:0.8rem;">' + (comment.date || '') + '</strong><br>' +
-                            (comment.text || '') +
-                        '</div>';
-                });
-            }
-
-            document.getElementById('edit-modal').style.display = 'flex';
-        }
-
-        function closeModal() { document.getElementById('edit-modal').style.display = 'none'; }
-
-        async function saveEdits() {
-            const id = document.getElementById('edit-id').value;
-            const c = companies.find(function(comp) { return String(comp.id) === String(id); });
-
-            let pdf_url = c ? c.pdf_url : null;
-            let pdf_name = c ? c.pdf_name : null;
-
-            const fileInput = document.getElementById('edit-pdf');
-            if (fileInput.files.length > 0) {
-                const uploaded = await uploadPDF(fileInput.files[0]);
-                if (uploaded) {
-                    pdf_url = uploaded.url;
-                    pdf_name = uploaded.name;
-                }
-            }
-
-            let updatedComments = (c && c.comments) ? c.comments : [];
-            const newUpdateText = document.getElementById('new-update').value.trim();
-            if (newUpdateText) {
-                updatedComments.push({ date: getFormattedDate(), text: newUpdateText });
-            }
-
-            const updates = {
-                name: document.getElementById('edit-name').value.trim(),
-                location: document.getElementById('edit-location').value.trim(),
-                type: document.getElementById('edit-type').value.trim(),
-                desc: document.getElementById('edit-desc').value.trim(),
-                c1_name: document.getElementById('edit-c1-name').value.trim(),
-                c1_role: document.getElementById('edit-c1-role').value.trim(),
-                c1_phone: document.getElementById('edit-c1-phone').value.trim(),
-                c1_email: document.getElementById('edit-c1-email').value.trim(),
-                c2_name: document.getElementById('edit-c2-name').value.trim(),
-                c2_role: document.getElementById('edit-c2-role').value.trim(),
-                c2_phone: document.getElementById('edit-c2-phone').value.trim(),
-                status: document.getElementById('edit-status').value,
-                follow_date: document.getElementById('edit-f-date').value,
-                follow_time: document.getElementById('edit-f-time').value,
-                follow_type: document.getElementById('edit-f-type').value,
-                pdf_url: pdf_url,
-                pdf_name: pdf_name,
-                comments: updatedComments
-            };
-
-            const res = await db.from('empresas').update(updates).eq('id', id);
-
-            if (res.error) {
-                alert("Error al actualizar: " + res.error.message);
-            } else {
-                closeModal();
-                loadCompanies();
-            }
-        }
-
-        function getFormattedDate() {
-            const d = new Date();
-            return d.toLocaleDateString('es-MX') + ' ' + d.toLocaleTimeString('es-MX', {hour: '2-digit', minute:'2-digit'});
-        }
-
-        window.onclick = function(event) {
-            const modal = document.getElementById('edit-modal');
-            if (event.target == modal) closeModal();
-        }
-    </script>
+window.addEventListener('click',e=>{
+    if(e.target===document.getElementById('edit-modal')) closeModal();
+    if(e.target===document.getElementById('new-company-modal')) closeNewCompanyModal();
+});
+</script>
 </body>
 </html>
